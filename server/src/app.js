@@ -5,6 +5,9 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 
+import passport from 'passport';
+import { configurePassport } from './config/passport.js';
+
 const app = express();
 
 app.use(helmet());
@@ -15,6 +18,9 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+configurePassport();
+app.use(passport.initialize());
 
 app.get('/health', (req, res) => {
   res.status(200).json({
