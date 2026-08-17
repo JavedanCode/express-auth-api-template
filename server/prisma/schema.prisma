@@ -71,8 +71,10 @@ model Session {
   userId           String
 
   refreshTokenHash String    @unique
+
   expiresAt        DateTime
   revokedAt        DateTime?
+  lastUsedAt       DateTime?
 
   userAgent        String?
   ipAddress        String?
@@ -85,7 +87,6 @@ model Session {
   @@index([userId])
   @@index([expiresAt])
 }
-
 model Conversation {
   id        String           @id @default(uuid())
   type      ConversationType
