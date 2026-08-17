@@ -34,11 +34,23 @@ export function generateRefreshToken(userId, sessionId) {
 }
 
 export function verifyAccessToken(token) {
-  return jwt.verify(token, env.JWT_ACCESS_SECRET);
+  const payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
+
+  if (payload.type !== 'access') {
+    throw new Error('Invalid access token.');
+  }
+
+  return payload;
 }
 
 export function verifyRefreshToken(token) {
-  return jwt.verify(token, env.JWT_REFRESH_SECRET);
+  const payload = jwt.verify(token, env.JWT_REFRESH_SECRET);
+
+  if (payload.type !== 'refresh') {
+    throw new Error('Invalid refresh token.');
+  }
+
+  return payload;
 }
 
 export function hashToken(token) {
