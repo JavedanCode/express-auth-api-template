@@ -37,7 +37,7 @@ uploads/
 storage/
 
 # Prisma
-generated/
+generated/prisma
 
 # IDE / editors
 .vscode/
