@@ -25,6 +25,7 @@ export function generateRefreshToken(userId, sessionId) {
       sub: userId,
       sid: sessionId,
       type: 'refresh',
+      jti: crypto.randomUUID(),
     },
     env.JWT_REFRESH_SECRET,
     {
