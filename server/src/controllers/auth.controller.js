@@ -1,5 +1,6 @@
 import { createAuthentication, registerUser } from '../services/auth.service.js';
 import { env } from '../config/env.js';
+import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
 
 export async function register(req, res, next) {
   try {
@@ -35,17 +36,9 @@ export async function login(req, res, next) {
       ipAddress: req.ip,
     });
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
+    res.cookie('accessToken', accessToken, accessTokenCookieOptions);
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'lax',
-    });
+    res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
 
     return res.status(200).json({
       success: true,
