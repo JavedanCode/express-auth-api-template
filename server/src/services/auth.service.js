@@ -73,3 +73,35 @@ export async function createAuthentication({ userId, userAgent, ipAddress }) {
     session,
   };
 }
+
+export async function registerUser({ username, email, password }) {
+  const existingEmail = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (existingEmail) {
+    throw new Error('Email is already registered.');
+  }
+
+  const existingUsername = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (existingUsername) {
+    throw new Error('Username is already taken.');
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  return prisma.user.create({
+    data: {
+      username,
+      email,
+      passwordHash,
+    },
+  });
+}
