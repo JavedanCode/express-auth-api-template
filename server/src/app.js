@@ -8,6 +8,8 @@ import morgan from 'morgan';
 import passport from 'passport';
 import { configurePassport } from './config/passport.js';
 
+import authRoutes from './routes/auth.routes.js';
+
 const app = express();
 
 app.use(helmet());
@@ -21,6 +23,8 @@ app.use(cookieParser());
 
 configurePassport();
 app.use(passport.initialize());
+
+app.use('/auth', authRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({
