@@ -55,3 +55,16 @@ export async function login(req, res, next) {
     return next(error);
   }
 }
+
+export async function getMe(req, res) {
+  return res.status(200).json({
+    success: true,
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      email: req.user.email,
+      displayName: req.user.displayName,
+      avatarUrl: req.user.avatarUrl,
+    },
+  });
+}
