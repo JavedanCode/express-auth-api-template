@@ -1,10 +1,16 @@
 import rateLimit from 'express-rate-limit';
 
-export const loginRateLimiter = rateLimit({
+function createRateLimiter(options) {
+  return rateLimit({
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    ...options,
+  });
+}
+
+export const loginRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   limit: 10,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -14,11 +20,9 @@ export const loginRateLimiter = rateLimit({
   },
 });
 
-export const registerRateLimiter = rateLimit({
+export const registerRateLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000,
   limit: 5,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -28,11 +32,9 @@ export const registerRateLimiter = rateLimit({
   },
 });
 
-export const refreshRateLimiter = rateLimit({
+export const refreshRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   limit: 20,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
