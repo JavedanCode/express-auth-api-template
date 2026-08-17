@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { getMe, login, refresh, register } from '../controllers/auth.controller.js';
+import { getMe, login, refresh, register, logout } from '../controllers/auth.controller.js';
 
 import { authenticateLocal } from '../middleware/passport.js';
 import { validate } from '../middleware/validate.js';
@@ -17,5 +17,7 @@ router.post('/login', validate(loginSchema), authenticateLocal, login);
 router.get('/me', authenticate, getMe);
 
 router.post('/refresh', refresh);
+
+router.post('/logout', logout);
 
 export default router;
