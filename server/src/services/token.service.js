@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 
 import { env } from '../config/env.js';
 
+import { durationToMilliseconds } from '../utils/duration.js';
+
 export function generateAccessToken(userId) {
   return jwt.sign(
     {
@@ -41,4 +43,8 @@ export function verifyRefreshToken(token) {
 
 export function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+export function getRefreshTokenExpiration() {
+  return new Date(Date.now() + durationToMilliseconds(env.JWT_REFRESH_EXPIRES_IN));
 }
