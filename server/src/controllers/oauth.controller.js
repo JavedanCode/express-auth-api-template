@@ -1,9 +1,6 @@
 import { env } from '../config/env.js';
-
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
-
 import { AppError } from '../errors/AppError.js';
-
 import { createAuthentication } from '../services/auth.service.js';
 
 export async function googleCallback(req, res, next) {
@@ -19,7 +16,6 @@ export async function googleCallback(req, res, next) {
     });
 
     res.cookie('accessToken', accessToken, accessTokenCookieOptions);
-
     res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
 
     return res.redirect(env.CLIENT_URL);
