@@ -8,6 +8,8 @@ import {
   generateAccessToken,
 } from './token.service.js';
 
+import { AppError } from '../errors/AppError.js';
+
 export async function findUserByEmail(email) {
   return prisma.user.findUnique({
     where: {
@@ -82,7 +84,7 @@ export async function registerUser({ username, email, password }) {
   });
 
   if (existingEmail) {
-    throw new Error('Email is already registered.');
+    throw new AppError('Email is already registered.', 409, 'EMAIL_ALREADY_EXISTS');
   }
 
   const existingUsername = await prisma.user.findUnique({
@@ -92,7 +94,7 @@ export async function registerUser({ username, email, password }) {
   });
 
   if (existingUsername) {
-    throw new Error('Username is already taken.');
+    throw new AppError('Username is already taken.', 409, 'USERNAME_ALREADY_EXISTS');
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
