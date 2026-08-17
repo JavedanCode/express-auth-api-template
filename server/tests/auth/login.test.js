@@ -51,6 +51,23 @@ describe('POST /auth/login', () => {
       ]),
     );
 
+    const cookies = response.headers['set-cookie'];
+
+    const accessCookie = cookies.find((cookie) => cookie.startsWith('accessToken='));
+
+    const refreshCookie = cookies.find((cookie) => cookie.startsWith('refreshToken='));
+
+    expect(accessCookie).toContain('HttpOnly');
+    expect(accessCookie).toContain('SameSite=Lax');
+    expect(accessCookie).toContain('Path=/');
+
+    expect(refreshCookie).toContain('HttpOnly');
+    expect(refreshCookie).toContain('SameSite=Lax');
+    expect(refreshCookie).toContain('Path=/auth');
+
+    expect(response.body).not.toHaveProperty('accessToken');
+    expect(response.body).not.toHaveProperty('refreshToken');
+
     const session = await prisma.session.findFirst({
       where: {
         userId: response.body.user.id,
