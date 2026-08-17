@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs';
 
 import { prisma } from '../db/prisma.js';
-import { generateRefreshToken, getRefreshTokenExpiration, hashToken } from './token.service.js';
+import {
+  generateRefreshToken,
+  getRefreshTokenExpiration,
+  hashToken,
+  generateAccessToken,
+} from './token.service.js';
 
 export async function findUserByEmail(email) {
   return prisma.user.findUnique({
@@ -50,5 +55,21 @@ export async function createSession({ userId, userAgent, ipAddress }) {
   return {
     session: updatedSession,
     refreshToken,
+  };
+}
+
+export async function createAuthentication({ userId, userAgent, ipAddress }) {
+  const { session, refreshToken } = await createSession({
+    userId,
+    userAgent,
+    ipAddress,
+  });
+
+  const accessToken = generateAccessToken(userId);
+
+  return {
+    accessToken,
+    refreshToken,
+    session,
   };
 }
