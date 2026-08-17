@@ -15,6 +15,8 @@ import {
 
 import { loginSchema, registerSchema } from '../schemas/auth.schema.js';
 
+import { AppError } from '../errors/AppError.js';
+
 import passport from 'passport';
 
 const router = Router();
@@ -31,13 +33,19 @@ router.post('/logout', logout);
 
 router.get('/google', startGoogleOAuth);
 
-router.get(
-  '/google/authorize',
-  passport.authenticate('google', {
+router.get('/google/authorize', (req, res, next) => {
+  const state = req.cookies.oauthState;
+
+  if (!state) {
+    return next(new AppError('OAuth authentication failed.', 401, 'OAUTH_STATE_INVALID'));
+  }
+
+  return passport.authenticate('google', {
     scope: ['profile', 'email'],
+    state,
     session: false,
-  }),
-);
+  })(req, res, next);
+});
 
 router.get(
   '/google/callback',
