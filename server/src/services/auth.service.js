@@ -28,7 +28,7 @@ export async function createSession({ userId, userAgent, ipAddress }) {
     data: {
       userId,
       refreshTokenHash: 'pending',
-      expiresAt: getRefreshTokenExpiration,
+      expiresAt: getRefreshTokenExpiration(),
       userAgent,
       ipAddress,
     },
