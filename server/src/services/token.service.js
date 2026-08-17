@@ -30,3 +30,15 @@ export function generateRefreshToken(userId, sessionId) {
     },
   );
 }
+
+export function verifyAccessToken(token) {
+  return jwt.verify(token, env.JWT_ACCESS_SECRET);
+}
+
+export function verifyRefreshToken(token) {
+  return jwt.verify(token, env.JWT_REFRESH_SECRET);
+}
+
+export function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
