@@ -16,3 +16,17 @@ export function generateAccessToken(userId) {
     },
   );
 }
+
+export function generateRefreshToken(userId, sessionId) {
+  return jwt.sign(
+    {
+      sub: userId,
+      sid: sessionId,
+      type: 'refresh',
+    },
+    env.JWT_REFRESH_SECRET,
+    {
+      expiresIn: env.JWT_REFRESH_EXPIRES_IN,
+    },
+  );
+}
