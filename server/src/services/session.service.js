@@ -94,3 +94,14 @@ export async function rotateSession({ sessionId, refreshToken }) {
     refreshToken: newRefreshToken,
   };
 }
+
+export async function revokeSession(sessionId) {
+  return prisma.session.update({
+    where: {
+      id: sessionId,
+    },
+    data: {
+      revokedAt: new Date(),
+    },
+  });
+}
