@@ -1,9 +1,10 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
-import { env } from '../config/env.js';
 import { AuthProvider } from '../../generated/prisma/enums.ts';
+import { env } from '../config/env.js';
 import { findOrCreateOAuthUser } from '../services/oauth.service.js';
+import { processGoogleProfile } from './oauth-profile.js';
 
 export function configureGoogleStrategy() {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !env.GOOGLE_CALLBACK_URL) {
@@ -19,19 +20,9 @@ export function configureGoogleStrategy() {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          const email = profile.emails?.[0]?.value;
-          const emailVerified = profile.emails?.[0]?.verified;
-
-          if (!email || !emailVerified) {
-            return done(new Error('Google account does not provide a verified email address.'));
-          }
-
-          const user = await findOrCreateOAuthUser({
+          const user = await processGoogleProfile(profile, {
+            findOrCreateOAuthUser,
             provider: AuthProvider.GOOGLE,
-            providerAccountId: profile.id,
-            email: email.toLowerCase(),
-            displayName: profile.displayName || null,
-            avatarUrl: profile.photos?.[0]?.value || null,
           });
 
           return done(null, user);
