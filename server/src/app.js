@@ -10,6 +10,8 @@ import { configurePassport } from './config/passport.js';
 
 import authRoutes from './routes/auth.routes.js';
 
+import { errorHandler } from './middleware/error-handler.js';
+
 const app = express();
 
 app.use(helmet());
@@ -32,5 +34,7 @@ app.get('/health', (req, res) => {
     message: 'Messaging API is running.',
   });
 });
+
+app.use(errorHandler);
 
 export default app;
