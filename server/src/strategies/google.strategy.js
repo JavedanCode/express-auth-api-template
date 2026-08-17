@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
 import { env } from '../config/env.js';
-import { AuthProvider } from '../generated/prisma/index.js';
+import { AuthProvider } from '../../generated/prisma/enums.ts';
 import { findOrCreateOAuthUser } from '../services/oauth.service.js';
 
 export function configureGoogleStrategy() {
