@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { getMe, login, refresh, register, logout } from '../controllers/auth.controller.js';
 
-import { googleCallback } from '../controllers/oauth.controller.js';
+import { googleCallback, startGoogleOAuth } from '../controllers/oauth.controller.js';
 
 import { authenticateLocal } from '../middleware/passport.js';
 import { validate } from '../middleware/validate.js';
@@ -29,10 +29,13 @@ router.post('/refresh', refreshRateLimiter, refresh);
 
 router.post('/logout', logout);
 
+router.get('/google', startGoogleOAuth);
+
 router.get(
-  '/google',
+  '/google/authorize',
   passport.authenticate('google', {
     scope: ['profile', 'email'],
+    session: false,
   }),
 );
 
@@ -43,5 +46,4 @@ router.get(
   }),
   googleCallback,
 );
-
 export default router;
