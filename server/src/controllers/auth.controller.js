@@ -1,6 +1,9 @@
 import { createAuthentication, registerUser } from '../services/auth.service.js';
 import { env } from '../config/env.js';
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
+import { rotateSession } from '../services/session.service.js';
+import { generateAccessToken, verifyRefreshToken } from '../services/token.service.js';
+import { AppError } from '../errors/AppError.js';
 
 export async function register(req, res, next) {
   try {
@@ -67,4 +70,34 @@ export async function getMe(req, res) {
       avatarUrl: req.user.avatarUrl,
     },
   });
+}
+
+export async function refresh(req, res, next) {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      throw new AppError('Authentication required.', 401, 'AUTHENTICATION_REQUIRED');
+    }
+
+    const payload = verifyRefreshToken(refreshToken);
+
+    const { session, refreshToken: newRefreshToken } = await rotateSession({
+      sessionId: payload.sid,
+      refreshToken,
+    });
+
+    const accessToken = generateAccessToken(session.userId);
+
+    res.cookie('accessToken', accessToken, accessTokenCookieOptions);
+
+    res.cookie('refreshToken', newRefreshToken, refreshTokenCookieOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Token refreshed successfully.',
+    });
+  } catch (error) {
+    return next(error);
+  }
 }
