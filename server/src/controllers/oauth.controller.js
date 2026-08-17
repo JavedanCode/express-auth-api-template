@@ -6,10 +6,6 @@ import { AppError } from '../errors/AppError.js';
 
 import { createAuthentication } from '../services/auth.service.js';
 
-export function googleLogin(req, res, next) {
-  return next();
-}
-
 export async function googleCallback(req, res, next) {
   try {
     if (!req.user) {
