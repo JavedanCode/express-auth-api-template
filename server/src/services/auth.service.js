@@ -18,3 +18,37 @@ export async function findUserById(userId) {
     },
   });
 }
+
+export async function verifyPassword(password, passwordHash) {
+  return bcrypt.compare(password, passwordHash);
+}
+
+export async function createSession({ userId, userAgent, ipAddress }) {
+  const session = await prisma.session.create({
+    data: {
+      userId,
+      refreshTokenHash: 'placeholder',
+      expiresAt: new Date(),
+      userAgent,
+      ipAddress,
+    },
+  });
+
+  const refreshToken = generateRefreshToken(userId, session.id);
+  const refreshTokenHash = hashToken(refreshToken);
+
+  const updatedSession = await prisma.session.update({
+    where: {
+      id: session.id,
+    },
+    data: {
+      refreshTokenHash,
+      expiresAt: getRefreshTokenExpiration(),
+    },
+  });
+
+  return {
+    session: updatedSession,
+    refreshToken,
+  };
+}
