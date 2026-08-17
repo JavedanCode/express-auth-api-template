@@ -18,3 +18,11 @@ export const refreshTokenCookieOptions = {
   path: '/auth',
   maxAge: durationToMilliseconds(env.JWT_REFRESH_EXPIRES_IN),
 };
+
+export const oauthStateCookieOptions = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 10 * 60 * 1000,
+  path: '/auth',
+};
