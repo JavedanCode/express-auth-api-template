@@ -11,6 +11,7 @@ describe('googleCallback', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
+
   it('creates authentication and redirects the user', async () => {
     createAuthentication.mockResolvedValue({
       accessToken: 'access-token',
@@ -24,12 +25,19 @@ describe('googleCallback', () => {
       user: {
         id: 'user-123',
       },
+      query: {
+        state: 'valid-state',
+      },
+      cookies: {
+        oauthState: 'valid-state',
+      },
       get: vi.fn().mockReturnValue('Vitest'),
       ip: '127.0.0.1',
     };
 
     const res = {
       cookie: vi.fn(),
+      clearCookie: vi.fn(),
       redirect: vi.fn(),
     };
 
@@ -42,6 +50,8 @@ describe('googleCallback', () => {
       userAgent: 'Vitest',
       ipAddress: '127.0.0.1',
     });
+
+    expect(res.clearCookie).toHaveBeenCalledWith('oauthState', expect.any(Object));
 
     expect(res.cookie).toHaveBeenCalledTimes(2);
 
@@ -59,12 +69,19 @@ describe('googleCallback', () => {
   it('rejects a callback without an authenticated user', async () => {
     const req = {
       user: undefined,
+      query: {
+        state: 'valid-state',
+      },
+      cookies: {
+        oauthState: 'valid-state',
+      },
       get: vi.fn(),
       ip: '127.0.0.1',
     };
 
     const res = {
       cookie: vi.fn(),
+      clearCookie: vi.fn(),
       redirect: vi.fn(),
     };
 
@@ -91,12 +108,19 @@ describe('googleCallback', () => {
       user: {
         id: 'user-123',
       },
+      query: {
+        state: 'valid-state',
+      },
+      cookies: {
+        oauthState: 'valid-state',
+      },
       get: vi.fn().mockReturnValue('Vitest'),
       ip: '127.0.0.1',
     };
 
     const res = {
       cookie: vi.fn(),
+      clearCookie: vi.fn(),
       redirect: vi.fn(),
     };
 
@@ -110,6 +134,78 @@ describe('googleCallback', () => {
       }),
     );
 
+    expect(res.redirect).not.toHaveBeenCalled();
+  });
+
+  it('rejects a callback with a missing state', async () => {
+    const req = {
+      user: {
+        id: 'user-123',
+      },
+      query: {},
+      cookies: {
+        oauthState: 'expected-state',
+      },
+      get: vi.fn().mockReturnValue('Vitest'),
+      ip: '127.0.0.1',
+    };
+
+    const res = {
+      cookie: vi.fn(),
+      clearCookie: vi.fn(),
+      redirect: vi.fn(),
+    };
+
+    const next = vi.fn();
+
+    await googleCallback(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 401,
+        code: 'OAUTH_STATE_INVALID',
+      }),
+    );
+
+    expect(createAuthentication).not.toHaveBeenCalled();
+    expect(res.cookie).not.toHaveBeenCalled();
+    expect(res.redirect).not.toHaveBeenCalled();
+  });
+
+  it('rejects a callback with an invalid state', async () => {
+    const req = {
+      user: {
+        id: 'user-123',
+      },
+      query: {
+        state: 'attacker-controlled-state',
+      },
+      cookies: {
+        oauthState: 'expected-state',
+      },
+      get: vi.fn().mockReturnValue('Vitest'),
+      ip: '127.0.0.1',
+    };
+
+    const res = {
+      cookie: vi.fn(),
+      clearCookie: vi.fn(),
+      redirect: vi.fn(),
+    };
+
+    const next = vi.fn();
+
+    await googleCallback(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 401,
+        code: 'OAUTH_STATE_INVALID',
+      }),
+    );
+
+    expect(createAuthentication).not.toHaveBeenCalled();
+    expect(res.cookie).not.toHaveBeenCalled();
     expect(res.redirect).not.toHaveBeenCalled();
   });
 });
