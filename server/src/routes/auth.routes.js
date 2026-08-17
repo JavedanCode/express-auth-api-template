@@ -2,7 +2,12 @@ import { Router } from 'express';
 
 import { getMe, login, refresh, register, logout } from '../controllers/auth.controller.js';
 
-import { googleCallback, startGoogleOAuth } from '../controllers/oauth.controller.js';
+import {
+  googleCallback,
+  startGoogleOAuth,
+  startGitHubOAuth,
+  githubCallback,
+} from '../controllers/oauth.controller.js';
 
 import { authenticateLocal } from '../middleware/passport.js';
 import { validate } from '../middleware/validate.js';
@@ -54,4 +59,29 @@ router.get(
   }),
   googleCallback,
 );
+
+router.get('/github', startGitHubOAuth);
+
+router.get('/github/authorize', (req, res, next) => {
+  const state = req.cookies.oauthState;
+
+  if (!state) {
+    return next(new AppError('OAuth authentication failed.', 401, 'OAUTH_STATE_INVALID'));
+  }
+
+  return passport.authenticate('github', {
+    scope: ['user:email'],
+    state,
+    session: false,
+  })(req, res, next);
+});
+
+router.get(
+  '/github/callback',
+  passport.authenticate('github', {
+    session: false,
+  }),
+  githubCallback,
+);
+
 export default router;
