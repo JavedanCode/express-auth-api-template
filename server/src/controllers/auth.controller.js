@@ -1,7 +1,6 @@
 import { createAuthentication, registerUser } from '../services/auth.service.js';
-import { env } from '../config/env.js';
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
-import { rotateSession } from '../services/session.service.js';
+import { rotateSession, revokeSession } from '../services/session.service.js';
 import { generateAccessToken, verifyRefreshToken } from '../services/token.service.js';
 import { AppError } from '../errors/AppError.js';
 
@@ -97,6 +96,31 @@ export async function refresh(req, res, next) {
       success: true,
       message: 'Token refreshed successfully.',
     });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function logout(req, res, next) {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      try {
+        const payload = verifyRefreshToken(refreshToken);
+
+        await revokeSession(payload.sid);
+      } catch {
+        // Logout should remain safe and idempotent.
+        // Invalid or expired authentication should not prevent
+        // the client from clearing its cookies.
+      }
+    }
+
+    res.clearCookie('accessToken', accessTokenCookieOptions);
+    res.clearCookie('refreshToken', refreshTokenCookieOptions);
+
+    return res.status(204).send();
   } catch (error) {
     return next(error);
   }
