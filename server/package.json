@@ -23,6 +23,7 @@
     "check": "npm run lint && npm run format:check && npm test"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
@@ -38,6 +39,7 @@
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
+    "pg": "^8.23.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "socket.io": "^4.8.3",
