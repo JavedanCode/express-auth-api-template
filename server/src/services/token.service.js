@@ -6,6 +6,26 @@ import { env } from '../config/env.js';
 
 import { durationToMilliseconds } from '../utils/duration.js';
 
+import { AppError } from '../errors/AppError.js';
+
+function verifyToken(token, secret, expectedType) {
+  try {
+    const payload = jwt.verify(token, secret);
+
+    if (payload.type !== expectedType) {
+      throw new AppError('Authentication required.', 401, 'AUTHENTICATION_REQUIRED');
+    }
+
+    return payload;
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw new AppError('Authentication required.', 401, 'AUTHENTICATION_REQUIRED');
+  }
+}
+
 export function generateAccessToken(userId) {
   return jwt.sign(
     {
@@ -35,23 +55,11 @@ export function generateRefreshToken(userId, sessionId) {
 }
 
 export function verifyAccessToken(token) {
-  const payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
-
-  if (payload.type !== 'access') {
-    throw new Error('Invalid access token.');
-  }
-
-  return payload;
+  return verifyToken(token, env.JWT_ACCESS_SECRET, 'access');
 }
 
 export function verifyRefreshToken(token) {
-  const payload = jwt.verify(token, env.JWT_REFRESH_SECRET);
-
-  if (payload.type !== 'refresh') {
-    throw new Error('Invalid refresh token.');
-  }
-
-  return payload;
+  return verifyToken(token, env.JWT_REFRESH_SECRET, 'refresh');
 }
 
 export function hashToken(token) {
