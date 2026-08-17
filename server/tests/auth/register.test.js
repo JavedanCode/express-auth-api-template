@@ -63,7 +63,7 @@ describe('POST /auth/register', () => {
       password: 'AnotherPassword123!',
     });
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(409);
   });
 
   it('rejects an existing username', async () => {
@@ -83,6 +83,6 @@ describe('POST /auth/register', () => {
       password: 'AnotherPassword123!',
     });
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(409);
   });
 });
