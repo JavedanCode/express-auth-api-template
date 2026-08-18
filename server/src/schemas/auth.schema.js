@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters long.')
+  .max(128, 'Password must not exceed 128 characters.');
+
 export const registerSchema = z.object({
   username: z
     .string()
@@ -10,10 +15,7 @@ export const registerSchema = z.object({
 
   email: z.string().trim().toLowerCase().email('Please provide a valid email address.'),
 
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters long.')
-    .max(128, 'Password must not exceed 128 characters.'),
+  password: passwordSchema,
 });
 
 export const loginSchema = z.object({
@@ -29,4 +31,9 @@ export const verifyEmailSchema = z.object({
 
 export const resendEmailVerificationSchema = z.object({
   email: z.string().email(),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required.'),
+  newPassword: passwordSchema,
 });
