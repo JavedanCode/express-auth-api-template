@@ -30,6 +30,8 @@ const envSchema = z.object({
 
   RESEND_API_KEY: z.string().min(1),
   EMAIL_FROM: z.string().min(1),
+
+  PASSWORD_RESET_URL: z.url(),
 });
 
 const result = envSchema.safeParse(process.env);
