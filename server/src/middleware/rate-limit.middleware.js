@@ -43,3 +43,17 @@ export const refreshRateLimiter = createRateLimiter({
     },
   },
 });
+
+export const emailVerificationRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many verification attempts. Please try again later.',
+    },
+  },
+});
