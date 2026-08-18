@@ -5,6 +5,8 @@ import { generateAccessToken, verifyRefreshToken } from '../services/token.servi
 import { createEmailVerificationToken } from '../services/verification-token.service.js';
 import { sendEmail } from '../services/email.service.js';
 import { buildEmailVerificationEmail } from '../emails/email-verification.js';
+import { findUserByEmail } from '../services/auth.service.js';
+import { verifyEmailVerificationToken } from '../services/verification-token.service.js';
 import { AppError } from '../errors/AppError.js';
 
 export async function register(req, res, next) {
@@ -137,6 +139,34 @@ export async function logout(req, res, next) {
     res.clearCookie('refreshToken', refreshTokenCookieOptions);
 
     return res.status(204).send();
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function verifyEmail(req, res, next) {
+  try {
+    const { email, code } = req.body;
+
+    const user = await findUserByEmail(email);
+
+    if (!user) {
+      throw new AppError('Invalid or expired verification code.', 400, 'INVALID_VERIFICATION_CODE');
+    }
+
+    if (user.emailVerifiedAt) {
+      return res.status(200).json({
+        success: true,
+        message: 'Email is already verified.',
+      });
+    }
+
+    await verifyEmailVerificationToken(user.id, code);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Email verified successfully.',
+    });
   } catch (error) {
     return next(error);
   }
