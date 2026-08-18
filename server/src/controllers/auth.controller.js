@@ -5,6 +5,7 @@ import { generateAccessToken, verifyRefreshToken } from '../services/token.servi
 import { findUserByEmail } from '../services/auth.service.js';
 import { verifyEmailVerificationToken } from '../services/verification-token.service.js';
 import { sendEmailVerification } from '../services/email-verification.service.js';
+import { resendEmailVerification } from '../services/email-verification.service.js';
 import { AppError } from '../errors/AppError.js';
 
 export async function register(req, res, next) {
@@ -154,6 +155,21 @@ export async function verifyEmail(req, res, next) {
     return res.status(200).json({
       success: true,
       message: 'Email verified successfully.',
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function resendEmailVerificationController(req, res, next) {
+  try {
+    const { email } = req.body;
+
+    await resendEmailVerification(email);
+
+    return res.status(200).json({
+      success: true,
+      message: 'If the email can be verified, a verification email will be sent.',
     });
   } catch (error) {
     return next(error);
