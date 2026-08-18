@@ -1,6 +1,13 @@
 import { Router } from 'express';
 
-import { getMe, login, refresh, register, logout } from '../controllers/auth.controller.js';
+import {
+  getMe,
+  login,
+  refresh,
+  register,
+  logout,
+  verifyEmail,
+} from '../controllers/auth.controller.js';
 
 import {
   googleCallback,
@@ -16,9 +23,10 @@ import {
   loginRateLimiter,
   refreshRateLimiter,
   registerRateLimiter,
+  emailVerificationRateLimiter,
 } from '../middleware/rate-limit.middleware.js';
 
-import { loginSchema, registerSchema } from '../schemas/auth.schema.js';
+import { loginSchema, registerSchema, verifyEmailSchema } from '../schemas/auth.schema.js';
 
 import { AppError } from '../errors/AppError.js';
 
@@ -33,6 +41,13 @@ router.post('/login', loginRateLimiter, validate(loginSchema), authenticateLocal
 router.get('/me', authenticate, getMe);
 
 router.post('/refresh', refreshRateLimiter, refresh);
+
+router.post(
+  '/email/verify',
+  emailVerificationRateLimiter,
+  validate(verifyEmailSchema),
+  verifyEmail,
+);
 
 router.post('/logout', logout);
 
