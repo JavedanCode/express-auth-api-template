@@ -20,16 +20,39 @@ export default [
 
   {
     files: ['**/*.js'],
+
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
+
       globals: {
         ...globals.node,
       },
     },
   },
 
-  eslint.configs.recommended,
+  {
+    files: ['tests/**/*.js'],
 
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.vitest,
+      },
+    },
+  },
+
+  {
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+
+  eslint.configs.recommended,
   prettierConfig,
 ];
