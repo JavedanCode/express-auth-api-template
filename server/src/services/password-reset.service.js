@@ -7,7 +7,6 @@ import {
   createPasswordResetToken,
   consumePasswordResetToken,
 } from './verification-token.service.js';
-import { revokeAllUserSessions } from './session.service.js';
 import { sendEmail } from './email.service.js';
 import { buildPasswordResetEmail } from '../emails/password-reset.js';
 import { env } from '../config/env.js';

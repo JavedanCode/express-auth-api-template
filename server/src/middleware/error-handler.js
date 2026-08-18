@@ -2,7 +2,7 @@ import { ZodError } from 'zod';
 
 import { AppError } from '../errors/AppError.js';
 
-export function errorHandler(error, req, res, next) {
+export function errorHandler(error, req, res, _next) {
   if (error instanceof ZodError) {
     return res.status(400).json({
       success: false,

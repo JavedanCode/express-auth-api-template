@@ -1,5 +1,3 @@
-import { AuthProvider } from '../../generated/prisma/enums.ts';
-
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../errors/AppError.js';
 
