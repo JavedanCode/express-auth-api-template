@@ -8,25 +8,6 @@ import { durationToMilliseconds } from '../utils/duration.js';
 
 import { AppError } from '../errors/AppError.js';
 
-const EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = 60;
-
-export async function canRequestEmailVerification(userId) {
-  const recentToken = await prisma.verificationToken.findFirst({
-    where: {
-      userId,
-      type: 'EMAIL_VERIFICATION',
-      createdAt: {
-        gt: new Date(Date.now() - EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS * 1000),
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
-
-  return !recentToken;
-}
-
 function verifyToken(token, secret, expectedType) {
   try {
     const payload = jwt.verify(token, secret);
