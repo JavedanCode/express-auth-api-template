@@ -26,3 +26,7 @@ export const verifyEmailSchema = z.object({
   email: z.string().email(),
   code: z.string().regex(/^\d{6}$/, 'Verification code must be 6 digits.'),
 });
+
+export const resendEmailVerificationSchema = z.object({
+  email: z.string().email(),
+});
