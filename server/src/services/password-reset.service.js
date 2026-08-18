@@ -11,6 +11,7 @@ import { revokeAllUserSessions } from './session.service.js';
 import { sendEmail } from './email.service.js';
 import { buildPasswordResetEmail } from '../emails/password-reset.js';
 import { env } from '../config/env.js';
+import { AppError } from '../errors/AppError.js';
 
 export async function requestPasswordReset(email) {
   const user = await findUserByEmail(email);
@@ -59,7 +60,11 @@ export async function resetPassword({ token, newPassword }) {
     });
 
     if (consumedToken.count !== 1) {
-      throw new Error('Password reset token was already used.');
+      throw new AppError(
+        'Invalid or expired password reset token.',
+        400,
+        'INVALID_PASSWORD_RESET_TOKEN',
+      );
     }
 
     await tx.user.update({
