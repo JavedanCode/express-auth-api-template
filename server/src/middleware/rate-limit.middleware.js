@@ -92,3 +92,15 @@ export const forgotPasswordRateLimiter = createRateLimiter({
     },
   },
 });
+
+export const resetPasswordRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many password reset attempts. Please try again later.',
+    },
+  },
+});
