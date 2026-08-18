@@ -13,6 +13,7 @@ describe('POST /auth/login', () => {
         username: 'loginuser',
         email: 'login@example.com',
         passwordHash,
+        emailVerifiedAt: new Date(),
       },
     });
   });
@@ -22,7 +23,7 @@ describe('POST /auth/login', () => {
     await prisma.user.deleteMany();
   });
 
-  it('authenticates a user with valid credentials', async () => {
+  it('authenticates a verified user with valid credentials', async () => {
     const response = await request(app).post('/auth/login').send({
       email: 'login@example.com',
       password: 'StrongPassword123!',
@@ -77,6 +78,32 @@ describe('POST /auth/login', () => {
     expect(session).not.toBeNull();
     expect(session.refreshTokenHash).toBeTruthy();
     expect(session.revokedAt).toBeNull();
+  });
+
+  it('rejects an unverified user', async () => {
+    await prisma.user.update({
+      where: {
+        email: 'login@example.com',
+      },
+      data: {
+        emailVerifiedAt: null,
+      },
+    });
+
+    const response = await request(app).post('/auth/login').send({
+      email: 'login@example.com',
+      password: 'StrongPassword123!',
+    });
+
+    expect(response.status).toBe(401);
+
+    expect(response.body).toMatchObject({
+      success: false,
+    });
+
+    const sessions = await prisma.session.findMany();
+
+    expect(sessions).toHaveLength(0);
   });
 
   it('rejects an incorrect password', async () => {
