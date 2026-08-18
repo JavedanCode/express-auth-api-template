@@ -105,3 +105,15 @@ export async function revokeSession(sessionId) {
     },
   });
 }
+
+export async function revokeAllUserSessions(userId) {
+  return prisma.session.updateMany({
+    where: {
+      userId,
+      revokedAt: null,
+    },
+    data: {
+      revokedAt: new Date(),
+    },
+  });
+}
