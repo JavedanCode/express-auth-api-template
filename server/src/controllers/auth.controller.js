@@ -6,6 +6,7 @@ import { findUserByEmail } from '../services/auth.service.js';
 import { verifyEmailVerificationToken } from '../services/verification-token.service.js';
 import { sendEmailVerification } from '../services/email-verification.service.js';
 import { resendEmailVerification } from '../services/email-verification.service.js';
+import { requestPasswordReset } from '../services/password-reset.service.js';
 import { AppError } from '../errors/AppError.js';
 
 export async function register(req, res, next) {
@@ -170,6 +171,21 @@ export async function resendEmailVerificationController(req, res, next) {
     return res.status(200).json({
       success: true,
       message: 'If the email can be verified, a verification email will be sent.',
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body;
+
+    await requestPasswordReset(email);
+
+    return res.status(200).json({
+      success: true,
+      message: 'If an account exists for this email, a password reset email will be sent.',
     });
   } catch (error) {
     return next(error);
