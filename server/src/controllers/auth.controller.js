@@ -2,6 +2,9 @@ import { createAuthentication, registerUser } from '../services/auth.service.js'
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
 import { rotateSession, revokeSession } from '../services/session.service.js';
 import { generateAccessToken, verifyRefreshToken } from '../services/token.service.js';
+import { createEmailVerificationToken } from '../services/verification-token.service.js';
+import { sendEmail } from '../services/email.service.js';
+import { buildEmailVerificationEmail } from '../emails/email-verification.js';
 import { AppError } from '../errors/AppError.js';
 
 export async function register(req, res, next) {
@@ -14,15 +17,28 @@ export async function register(req, res, next) {
       password,
     });
 
+    const verificationCode = await createEmailVerificationToken(user.id);
+
+    const verificationEmail = buildEmailVerificationEmail({
+      code: verificationCode,
+    });
+
+    await sendEmail({
+      to: user.email,
+      subject: verificationEmail.subject,
+      html: verificationEmail.html,
+    });
+
     return res.status(201).json({
       success: true,
-      message: 'Registration successful.',
+      message: 'Registration successful. Please verify your email address.',
       user: {
         id: user.id,
         username: user.username,
         email: user.email,
         displayName: user.displayName,
         avatarUrl: user.avatarUrl,
+        emailVerifiedAt: user.emailVerifiedAt,
       },
     });
   } catch (error) {
