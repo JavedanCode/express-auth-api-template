@@ -4,6 +4,7 @@ import { prisma } from '../../src/db/prisma.js';
 import {
   createEmailVerificationToken,
   verifyEmailVerificationToken,
+  canRequestEmailVerification,
 } from '../../src/services/verification-token.service.js';
 
 describe('verification token service', () => {
@@ -112,5 +113,19 @@ describe('verification token service', () => {
     });
 
     await expect(verifyEmailVerificationToken(user.id, secondCode)).resolves.toBe(true);
+  });
+
+  it('allows a verification email when there is no recent token', async () => {
+    const canRequest = await canRequestEmailVerification(user.id);
+
+    expect(canRequest).toBe(true);
+  });
+
+  it('blocks a verification email during the cooldown period', async () => {
+    await createEmailVerificationToken(user.id);
+
+    const canRequest = await canRequestEmailVerification(user.id);
+
+    expect(canRequest).toBe(false);
   });
 });
