@@ -1,5 +1,13 @@
+import bcrypt from 'bcryptjs';
+
+import { prisma } from '../db/prisma.js';
 import { findUserByEmail } from './auth.service.js';
-import { canRequestPasswordReset, createPasswordResetToken } from './verification-token.service.js';
+import {
+  canRequestPasswordReset,
+  createPasswordResetToken,
+  consumePasswordResetToken,
+} from './verification-token.service.js';
+import { revokeAllUserSessions } from './session.service.js';
 import { sendEmail } from './email.service.js';
 import { buildPasswordResetEmail } from '../emails/password-reset.js';
 import { env } from '../config/env.js';
@@ -29,5 +37,49 @@ export async function requestPasswordReset(email) {
     to: user.email,
     subject: emailContent.subject,
     html: emailContent.html,
+  });
+}
+
+export async function resetPassword({ token, newPassword }) {
+  const verificationToken = await consumePasswordResetToken(token);
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+
+  const passwordChangedAt = new Date();
+
+  await prisma.$transaction(async (tx) => {
+    const consumedToken = await tx.verificationToken.updateMany({
+      where: {
+        id: verificationToken.id,
+        usedAt: null,
+      },
+      data: {
+        usedAt: passwordChangedAt,
+      },
+    });
+
+    if (consumedToken.count !== 1) {
+      throw new Error('Password reset token was already used.');
+    }
+
+    await tx.user.update({
+      where: {
+        id: verificationToken.userId,
+      },
+      data: {
+        passwordHash,
+        passwordChangedAt,
+      },
+    });
+
+    await tx.session.updateMany({
+      where: {
+        userId: verificationToken.userId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: passwordChangedAt,
+      },
+    });
   });
 }
