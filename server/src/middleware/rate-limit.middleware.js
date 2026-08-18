@@ -1,11 +1,24 @@
 import rateLimit from 'express-rate-limit';
 
+const limiters = [];
+
 function createRateLimiter(options) {
-  return rateLimit({
+  const limiter = rateLimit({
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     ...options,
   });
+
+  limiters.push(limiter);
+
+  return limiter;
+}
+
+export async function resetRateLimiters() {
+  for (const limiter of limiters) {
+    await limiter.resetKey('127.0.0.1');
+    await limiter.resetKey('::ffff:127.0.0.1');
+  }
 }
 
 export const loginRateLimiter = createRateLimiter({
@@ -44,11 +57,9 @@ export const refreshRateLimiter = createRateLimiter({
   },
 });
 
-export const emailVerificationRateLimiter = rateLimit({
+export const emailVerificationRateLimiter = createRateLimiter({
   windowMs: 15 * 60 * 1000,
   limit: 10,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -58,16 +69,26 @@ export const emailVerificationRateLimiter = rateLimit({
   },
 });
 
-export const resendEmailVerificationRateLimiter = rateLimit({
+export const resendEmailVerificationRateLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000,
   limit: 5,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
       code: 'RATE_LIMIT_EXCEEDED',
       message: 'Too many verification email requests. Please try again later.',
+    },
+  },
+});
+
+export const forgotPasswordRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many password reset requests. Please try again later.',
     },
   },
 });
