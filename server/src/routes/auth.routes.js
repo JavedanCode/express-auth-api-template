@@ -58,8 +58,8 @@ router.post(
 
 router.post(
   '/email/resend',
-  resendEmailVerificationRateLimiter,
   validate(resendEmailVerificationSchema),
+  resendEmailVerificationRateLimiter,
   resendEmailVerificationController,
 );
 
