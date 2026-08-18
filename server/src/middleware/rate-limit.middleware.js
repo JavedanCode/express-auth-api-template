@@ -57,3 +57,17 @@ export const emailVerificationRateLimiter = rateLimit({
     },
   },
 });
+
+export const resendEmailVerificationRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many verification email requests. Please try again later.',
+    },
+  },
+});
