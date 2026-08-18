@@ -28,6 +28,13 @@ export function configureLocalStrategy() {
             });
           }
 
+          if (!user.emailVerifiedAt) {
+            return done(null, false, {
+              message: 'Please verify your email address before logging in.',
+              code: 'EMAIL_NOT_VERIFIED',
+            });
+          }
+
           return done(null, user);
         } catch (error) {
           return done(error);
