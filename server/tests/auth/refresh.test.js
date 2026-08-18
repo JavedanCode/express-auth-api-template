@@ -17,6 +17,7 @@ describe('POST /auth/refresh', () => {
         username: 'refreshuser',
         email: 'refresh@example.com',
         passwordHash,
+        emailVerifiedAt: new Date(),
       },
     });
 

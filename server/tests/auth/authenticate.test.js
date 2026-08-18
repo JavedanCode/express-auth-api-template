@@ -15,6 +15,7 @@ describe('GET /auth/me', () => {
         username: 'authuser',
         email: 'auth@example.com',
         passwordHash,
+        emailVerifiedAt: new Date(),
       },
     });
 

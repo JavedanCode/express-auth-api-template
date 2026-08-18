@@ -16,6 +16,7 @@ describe('POST /auth/logout', () => {
         username: 'logoutuser',
         email: 'logout@example.com',
         passwordHash,
+        emailVerifiedAt: new Date(),
       },
     });
 
