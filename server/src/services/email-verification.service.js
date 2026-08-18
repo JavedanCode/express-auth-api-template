@@ -1,6 +1,10 @@
+import { findUserByEmail } from './auth.service.js';
+import {
+  canRequestEmailVerification,
+  createEmailVerificationToken,
+} from './verification-token.service.js';
 import { buildEmailVerificationEmail } from '../emails/email-verification.js';
 import { sendEmail } from './email.service.js';
-import { createEmailVerificationToken } from './verification-token.service.js';
 
 export async function sendEmailVerification(user) {
   const code = await createEmailVerificationToken(user.id);
@@ -14,4 +18,20 @@ export async function sendEmailVerification(user) {
     subject: email.subject,
     html: email.html,
   });
+}
+
+export async function resendEmailVerification(email) {
+  const user = await findUserByEmail(email);
+
+  if (!user || user.emailVerifiedAt) {
+    return;
+  }
+
+  const canRequest = await canRequestEmailVerification(user.id);
+
+  if (!canRequest) {
+    return;
+  }
+
+  await sendEmailVerification(user);
 }
