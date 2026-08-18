@@ -9,6 +9,7 @@ import {
   verifyEmail,
   resendEmailVerificationController,
   forgotPassword,
+  resetPasswordController,
 } from '../controllers/auth.controller.js';
 
 import {
@@ -28,6 +29,7 @@ import {
   emailVerificationRateLimiter,
   resendEmailVerificationRateLimiter,
   forgotPasswordRateLimiter,
+  resetPasswordRateLimiter,
 } from '../middleware/rate-limit.middleware.js';
 
 import {
@@ -36,6 +38,7 @@ import {
   verifyEmailSchema,
   resendEmailVerificationSchema,
   forgotPasswordSchema,
+  resetPasswordSchema,
 } from '../schemas/auth.schema.js';
 
 import { AppError } from '../errors/AppError.js';
@@ -71,6 +74,13 @@ router.post(
   validate(forgotPasswordSchema),
   forgotPasswordRateLimiter,
   forgotPassword,
+);
+
+router.post(
+  '/password/reset',
+  resetPasswordRateLimiter,
+  validate(resetPasswordSchema),
+  resetPasswordController,
 );
 
 router.post('/logout', logout);
