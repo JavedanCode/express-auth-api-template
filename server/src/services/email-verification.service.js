@@ -1,10 +1,10 @@
 import { findUserByEmail } from './auth.service.js';
+import { buildEmailVerificationEmail } from '../emails/email-verification.js';
+import { sendEmail } from './email.service.js';
 import {
   canRequestEmailVerification,
   createEmailVerificationToken,
 } from './verification-token.service.js';
-import { buildEmailVerificationEmail } from '../emails/email-verification.js';
-import { sendEmail } from './email.service.js';
 
 export async function sendEmailVerification(user) {
   const code = await createEmailVerificationToken(user.id);

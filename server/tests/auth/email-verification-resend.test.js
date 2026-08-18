@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { sendEmail } from '../../src/services/email.service.js';
 
 import app from '../../src/app.js';
 import { prisma } from '../../src/db/prisma.js';
@@ -14,6 +15,8 @@ describe('POST /auth/email/resend', () => {
   let user;
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+
     user = await prisma.user.create({
       data: {
         username: 'resenduser',
@@ -35,10 +38,7 @@ describe('POST /auth/email/resend', () => {
 
     expect(response.status).toBe(200);
 
-    expect(response.body).toMatchObject({
-      success: true,
-      message: 'If the email can be verified, a verification email will be sent.',
-    });
+    expect(sendEmail).toHaveBeenCalledTimes(1);
 
     const token = await prisma.verificationToken.findFirst({
       where: {
