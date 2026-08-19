@@ -29,3 +29,11 @@ export const updateUsernameSchema = z.object({
     .max(30, 'Username must not exceed 30 characters.')
     .regex(/^[a-zA-Z0-9_]+$/, 'Username may only contain letters, numbers, and underscores.'),
 });
+
+export const requestEmailChangeSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Please provide a valid email address.'),
+});
+
+export const confirmEmailChangeSchema = z.object({
+  token: z.string().min(1, 'Email change token is required.'),
+});
