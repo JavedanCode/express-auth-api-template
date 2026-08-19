@@ -20,3 +20,12 @@ export const updateProfileSchema = z
   .refine((data) => data.displayName !== undefined || data.avatarUrl !== undefined, {
     message: 'At least one profile field must be provided.',
   });
+
+export const updateUsernameSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters long.')
+    .max(30, 'Username must not exceed 30 characters.')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username may only contain letters, numbers, and underscores.'),
+});
