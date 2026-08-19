@@ -4,6 +4,8 @@ import {
   changePassword,
   updateProfile,
   changeUsernameController,
+  requestEmailChangeController,
+  confirmEmailChangeController,
 } from '../controllers/user.controller.js';
 
 import { authenticate } from '../middleware/authenticate.js';
@@ -12,7 +14,12 @@ import { validate } from '../middleware/validate.js';
 
 import { changePasswordSchema } from '../schemas/auth.schema.js';
 
-import { updateProfileSchema, updateUsernameSchema } from '../schemas/user.schema.js';
+import {
+  updateProfileSchema,
+  updateUsernameSchema,
+  requestEmailChangeSchema,
+  confirmEmailChangeSchema,
+} from '../schemas/user.schema.js';
 
 const router = Router();
 
@@ -25,6 +32,20 @@ router.patch(
   authenticate,
   validate(updateUsernameSchema),
   changeUsernameController,
+);
+
+router.patch(
+  '/me/email',
+  authenticate,
+  validate(requestEmailChangeSchema),
+  requestEmailChangeController,
+);
+
+router.post(
+  '/me/email/confirm',
+  authenticate,
+  validate(confirmEmailChangeSchema),
+  confirmEmailChangeController,
 );
 
 export default router;
