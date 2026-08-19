@@ -32,6 +32,7 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().min(1),
 
   PASSWORD_RESET_URL: z.url(),
+  EMAIL_CHANGE_URL: z.url(),
 });
 
 const result = envSchema.safeParse(process.env);
