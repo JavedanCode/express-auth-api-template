@@ -47,3 +47,24 @@ export async function changeUserPassword({ userId, currentPassword, newPassword 
 
   return updatedUser;
 }
+
+export async function updateUserProfile({ userId, displayName, avatarUrl }) {
+  const user = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      ...(displayName !== undefined && { displayName }),
+      ...(avatarUrl !== undefined && { avatarUrl }),
+    },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      displayName: true,
+      avatarUrl: true,
+    },
+  });
+
+  return user;
+}
