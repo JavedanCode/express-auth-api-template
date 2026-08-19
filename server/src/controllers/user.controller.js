@@ -5,6 +5,7 @@ import {
   deleteUserAccount,
 } from '../services/user.service.js';
 import { requestEmailChange, confirmEmailChange } from '../services/email-change.service.js';
+import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
 export async function updateProfile(req, res, next) {
   try {
     const { displayName, avatarUrl } = req.body;
@@ -105,8 +106,8 @@ export async function deleteAccount(req, res, next) {
       currentPassword,
     });
 
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken', accessTokenCookieOptions);
+    res.clearCookie('refreshToken', refreshTokenCookieOptions);
 
     return res.status(204).send();
   } catch (error) {
