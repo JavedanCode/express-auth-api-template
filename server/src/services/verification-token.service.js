@@ -6,6 +6,8 @@ import { AppError } from '../errors/AppError.js';
 const EMAIL_VERIFICATION_EXPIRATION_MINUTES = 15;
 const PASSWORD_RESET_EXPIRATION_MINUTES = 15;
 const PASSWORD_RESET_COOLDOWN_SECONDS = 60;
+const EMAIL_CHANGE_EXPIRATION_MINUTES = 15;
+const EMAIL_CHANGE_COOLDOWN_SECONDS = 60;
 
 function generateVerificationCode() {
   return crypto.randomInt(100000, 1000000).toString();
@@ -164,6 +166,76 @@ export async function canRequestPasswordReset(userId) {
       type: 'PASSWORD_RESET',
       createdAt: {
         gt: new Date(Date.now() - PASSWORD_RESET_COOLDOWN_SECONDS * 1000),
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return !recentToken;
+}
+
+function generateEmailChangeToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function hashEmailChangeToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+export async function createEmailChangeToken(userId, targetEmail) {
+  const token = generateEmailChangeToken();
+  const tokenHash = hashEmailChangeToken(token);
+
+  const expiresAt = new Date(Date.now() + EMAIL_CHANGE_EXPIRATION_MINUTES * 60 * 1000);
+
+  await prisma.verificationToken.deleteMany({
+    where: {
+      userId,
+      type: 'EMAIL_CHANGE',
+      usedAt: null,
+    },
+  });
+
+  await prisma.verificationToken.create({
+    data: {
+      userId,
+      type: 'EMAIL_CHANGE',
+      tokenHash,
+      targetEmail,
+      expiresAt,
+    },
+  });
+
+  return token;
+}
+
+export async function consumeEmailChangeToken(token) {
+  const tokenHash = hashEmailChangeToken(token);
+
+  const verificationToken = await prisma.verificationToken.findFirst({
+    where: {
+      type: 'EMAIL_CHANGE',
+      tokenHash,
+      usedAt: null,
+    },
+  });
+
+  if (!verificationToken || verificationToken.expiresAt <= new Date()) {
+    throw new AppError('Invalid or expired email change token.', 400, 'INVALID_EMAIL_CHANGE_TOKEN');
+  }
+
+  return verificationToken;
+}
+
+export async function canRequestEmailChange(userId) {
+  const recentToken = await prisma.verificationToken.findFirst({
+    where: {
+      userId,
+      type: 'EMAIL_CHANGE',
+      createdAt: {
+        gt: new Date(Date.now() - EMAIL_CHANGE_COOLDOWN_SECONDS * 1000),
       },
     },
     orderBy: {
