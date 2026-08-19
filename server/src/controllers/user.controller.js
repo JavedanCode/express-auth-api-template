@@ -1,4 +1,9 @@
-import { changeUserPassword, updateUserProfile, changeUsername } from '../services/user.service.js';
+import {
+  changeUserPassword,
+  updateUserProfile,
+  changeUsername,
+  deleteUserAccount,
+} from '../services/user.service.js';
 import { requestEmailChange, confirmEmailChange } from '../services/email-change.service.js';
 export async function updateProfile(req, res, next) {
   try {
@@ -86,6 +91,24 @@ export async function confirmEmailChangeController(req, res, next) {
       success: true,
       message: 'Email address changed successfully.',
     });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function deleteAccount(req, res, next) {
+  try {
+    const { currentPassword } = req.body;
+
+    await deleteUserAccount({
+      userId: req.user.id,
+      currentPassword,
+    });
+
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
+    return res.status(204).send();
   } catch (error) {
     return next(error);
   }
