@@ -6,6 +6,7 @@ import {
   changeUsernameController,
   requestEmailChangeController,
   confirmEmailChangeController,
+  deleteAccount,
 } from '../controllers/user.controller.js';
 
 import { authenticate } from '../middleware/authenticate.js';
@@ -19,6 +20,7 @@ import {
   updateUsernameSchema,
   requestEmailChangeSchema,
   confirmEmailChangeSchema,
+  deleteAccountSchema,
 } from '../schemas/user.schema.js';
 
 const router = Router();
@@ -47,5 +49,7 @@ router.post(
   validate(confirmEmailChangeSchema),
   confirmEmailChangeController,
 );
+
+router.delete('/me', authenticate, validate(deleteAccountSchema), deleteAccount);
 
 export default router;
