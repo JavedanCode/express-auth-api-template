@@ -68,3 +68,24 @@ export async function updateUserProfile({ userId, displayName, avatarUrl }) {
 
   return user;
 }
+
+export async function changeUsername({ userId, username }) {
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (existingUser && existingUser.id !== userId) {
+    throw new AppError('Username is already taken.', 409, 'USERNAME_ALREADY_EXISTS');
+  }
+
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      username,
+    },
+  });
+}
