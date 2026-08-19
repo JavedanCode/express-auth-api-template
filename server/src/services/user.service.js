@@ -89,3 +89,37 @@ export async function changeUsername({ userId, username }) {
     },
   });
 }
+
+export async function deleteUserAccount({ userId, currentPassword }) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      passwordHash: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError('User not found.', 404, 'USER_NOT_FOUND');
+  }
+
+  if (user.passwordHash) {
+    if (!currentPassword) {
+      throw new AppError('Current password is required.', 400, 'CURRENT_PASSWORD_REQUIRED');
+    }
+
+    const currentPasswordValid = await verifyPassword(currentPassword, user.passwordHash);
+
+    if (!currentPasswordValid) {
+      throw new AppError('Current password is incorrect.', 401, 'INVALID_CURRENT_PASSWORD');
+    }
+  }
+
+  await prisma.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+}
