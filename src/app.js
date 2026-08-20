@@ -17,7 +17,11 @@ import { env } from './config/env.js';
 
 const app = express();
 
+// Apply security-related HTTP headers before handling application requests.
 app.use(helmet());
+
+// Allow the configured frontend to make credentialed cross-origin requests.
+// Credentials are required because authentication tokens are stored in cookies.
 app.use(
   cors({
     origin: env.CLIENT_URL,
@@ -44,6 +48,8 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Error handling middleware must be registered after all routes and other middleware
+// so it can receive errors forwarded through Express's middleware chain.
 app.use(errorHandler);
 
 export default app;
