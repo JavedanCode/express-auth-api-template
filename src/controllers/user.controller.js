@@ -4,8 +4,11 @@ import {
   changeUsername,
   deleteUserAccount,
 } from '../services/user.service.js';
+
 import { requestEmailChange, confirmEmailChange } from '../services/email-change.service.js';
+
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
+
 export async function updateProfile(req, res, next) {
   try {
     const { displayName, avatarUrl } = req.body;
@@ -30,6 +33,8 @@ export async function changePassword(req, res, next) {
   try {
     const { currentPassword, newPassword } = req.body;
 
+    // Changing the password invalidates the user's existing sessions, so the
+    // client must authenticate again with the new credentials.
     await changeUserPassword({
       userId: req.user.id,
       currentPassword,
@@ -71,6 +76,8 @@ export async function requestEmailChangeController(req, res, next) {
   try {
     const { email } = req.body;
 
+    // Email changes require verification of the new address before the account
+    // email is updated.
     await requestEmailChange(req.user.id, email);
 
     return res.status(200).json({
@@ -101,6 +108,8 @@ export async function deleteAccount(req, res, next) {
   try {
     const { currentPassword } = req.body;
 
+    // Account deletion also invalidates the current authentication cookies so the
+    // deleted account cannot remain authenticated in the client.
     await deleteUserAccount({
       userId: req.user.id,
       currentPassword,
