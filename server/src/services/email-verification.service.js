@@ -1,4 +1,4 @@
-import { findUserByEmail } from './auth.service.js';
+import { findUserByEmail } from './user.service.js';
 import { buildEmailVerificationEmail } from '../emails/email-verification.js';
 import { sendEmail } from './email.service.js';
 import {

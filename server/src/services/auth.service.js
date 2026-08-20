@@ -7,22 +7,6 @@ import { AppError } from '../errors/AppError.js';
 
 import { createSession } from './session.service.js';
 
-export async function findUserByEmail(email) {
-  return prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
-}
-
-export async function findUserById(userId) {
-  return prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-}
-
 export async function verifyPassword(password, passwordHash) {
   return bcrypt.compare(password, passwordHash);
 }

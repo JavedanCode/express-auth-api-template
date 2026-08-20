@@ -5,6 +5,22 @@ import { AppError } from '../errors/AppError.js';
 import { verifyPassword } from './auth.service.js';
 import { revokeAllUserSessions } from './session.service.js';
 
+export async function findUserByEmail(email) {
+  return prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+}
+
+export async function findUserById(userId) {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+}
+
 export async function changeUserPassword({ userId, currentPassword, newPassword }) {
   const user = await prisma.user.findUnique({
     where: {

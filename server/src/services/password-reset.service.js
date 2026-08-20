@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
 import { prisma } from '../db/prisma.js';
-import { findUserByEmail } from './auth.service.js';
+import { findUserByEmail } from './user.service.js';
 import {
   canRequestPasswordReset,
   createPasswordResetToken,

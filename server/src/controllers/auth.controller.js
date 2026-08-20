@@ -2,7 +2,7 @@ import { createAuthentication, registerUser } from '../services/auth.service.js'
 import { accessTokenCookieOptions, refreshTokenCookieOptions } from '../config/cookies.js';
 import { rotateSession, revokeSession } from '../services/session.service.js';
 import { generateAccessToken, verifyRefreshToken } from '../services/token.service.js';
-import { findUserByEmail } from '../services/auth.service.js';
+import { findUserByEmail } from '../services/user.service.js';
 import { verifyEmailVerificationToken } from '../services/verification-token.service.js';
 import { sendEmailVerification } from '../services/email-verification.service.js';
 import { resendEmailVerification } from '../services/email-verification.service.js';

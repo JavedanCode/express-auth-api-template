@@ -1,5 +1,5 @@
 import { AppError } from '../errors/AppError.js';
-import { findUserById } from '../services/auth.service.js';
+import { findUserById } from '../services/user.service.js';
 import { verifyAccessToken } from '../services/token.service.js';
 
 export async function authenticate(req, res, next) {
