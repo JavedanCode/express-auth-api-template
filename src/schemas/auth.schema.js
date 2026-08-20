@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { passwordSchema } from './common.schema';
+import { passwordSchema } from './common.schema.js';
 
 export const registerSchema = z.object({
   username: z
