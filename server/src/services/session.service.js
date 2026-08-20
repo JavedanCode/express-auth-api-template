@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 import { prisma } from '../db/prisma.js';
 
 import { AppError } from '../errors/AppError.js';
@@ -5,31 +7,25 @@ import { AppError } from '../errors/AppError.js';
 import { generateRefreshToken, getRefreshTokenExpiration, hashToken } from './token.service.js';
 
 export async function createSession({ userId, userAgent, ipAddress }) {
+  const sessionId = crypto.randomUUID();
+
+  const refreshToken = generateRefreshToken(userId, sessionId);
+
+  const refreshTokenHash = hashToken(refreshToken);
+
   const session = await prisma.session.create({
     data: {
+      id: sessionId,
       userId,
-      refreshTokenHash: 'pending',
+      refreshTokenHash,
       expiresAt: getRefreshTokenExpiration(),
       userAgent,
       ipAddress,
     },
   });
 
-  const refreshToken = generateRefreshToken(userId, session.id);
-
-  const refreshTokenHash = hashToken(refreshToken);
-
-  const updatedSession = await prisma.session.update({
-    where: {
-      id: session.id,
-    },
-    data: {
-      refreshTokenHash,
-    },
-  });
-
   return {
-    session: updatedSession,
+    session,
     refreshToken,
   };
 }
