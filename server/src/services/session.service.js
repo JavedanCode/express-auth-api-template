@@ -97,9 +97,10 @@ export async function rotateSession({ sessionId, refreshToken }) {
 }
 
 export async function revokeSession(sessionId) {
-  return prisma.session.update({
+  return prisma.session.updateMany({
     where: {
       id: sessionId,
+      revokedAt: null,
     },
     data: {
       revokedAt: new Date(),
