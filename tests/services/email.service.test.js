@@ -49,7 +49,7 @@ describe('email service', () => {
     });
   });
 
-  it('throws when Resend returns an error', async () => {
+  it('throws an AppError when Resend returns an error', async () => {
     sendMock.mockResolvedValue({
       data: null,
       error: {
@@ -57,12 +57,16 @@ describe('email service', () => {
       },
     });
 
-    await expect(
-      sendEmail({
-        to: 'user@example.com',
-        subject: 'Test email',
-        html: '<p>Hello!</p>',
-      }),
-    ).rejects.toThrow('Failed to send email: Invalid API key');
+    const promise = sendEmail({
+      to: 'user@example.com',
+      subject: 'Test email',
+      html: '<p>Hello!</p>',
+    });
+
+    await expect(promise).rejects.toMatchObject({
+      statusCode: 503,
+      code: 'EMAIL_DELIVERY_FAILED',
+      message: 'Unable to deliver the email. Please try again later.',
+    });
   });
 });
