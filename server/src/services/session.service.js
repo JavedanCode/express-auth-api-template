@@ -56,6 +56,7 @@ export async function rotateSession({ sessionId, refreshToken }) {
   const newRefreshTokenHash = hashToken(newRefreshToken);
 
   const now = new Date();
+  const newExpiresAt = getRefreshTokenExpiration();
 
   const result = await prisma.session.updateMany({
     where: {
@@ -66,14 +67,15 @@ export async function rotateSession({ sessionId, refreshToken }) {
     data: {
       refreshTokenHash: newRefreshTokenHash,
       lastUsedAt: now,
-      expiresAt: getRefreshTokenExpiration(),
+      expiresAt: newExpiresAt,
     },
   });
 
   if (result.count !== 1) {
-    await prisma.session.update({
+    await prisma.session.updateMany({
       where: {
         id: session.id,
+        revokedAt: null,
       },
       data: {
         revokedAt: new Date(),
@@ -88,6 +90,7 @@ export async function rotateSession({ sessionId, refreshToken }) {
       ...session,
       refreshTokenHash: newRefreshTokenHash,
       lastUsedAt: now,
+      expiresAt: newExpiresAt,
     },
     refreshToken: newRefreshToken,
   };
