@@ -1,8 +1,14 @@
+import { AppError } from '../errors/AppError.js';
+
 export async function processGitHubProfile(profile, { findOrCreateOAuthUser, provider }) {
   const emailData = profile.emails?.find((email) => email.primary) ?? profile.emails?.[0];
 
   if (!emailData?.value) {
-    throw new Error('GitHub account does not provide an email address.');
+    throw new AppError(
+      'A GitHub account with an email address is required.',
+      401,
+      'OAUTH_EMAIL_REQUIRED',
+    );
   }
 
   return findOrCreateOAuthUser({

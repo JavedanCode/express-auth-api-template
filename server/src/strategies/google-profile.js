@@ -1,8 +1,14 @@
+import { AppError } from '../errors/AppError.js';
+
 export async function processGoogleProfile(profile, { findOrCreateOAuthUser, provider }) {
   const emailData = profile.emails?.[0];
 
   if (!emailData?.value || !emailData.verified) {
-    throw new Error('Google account does not provide a verified email address.');
+    throw new AppError(
+      'A verified email address is required to use Google login.',
+      401,
+      'OAUTH_EMAIL_REQUIRED',
+    );
   }
 
   return findOrCreateOAuthUser({
