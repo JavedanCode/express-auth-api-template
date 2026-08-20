@@ -1,7 +1,7 @@
 {
-  "name": "server",
+  "name": "express-auth-api-template",
   "version": "1.0.0",
-  "description": "RESTful Messaging Web App API",
+  "description": "A RESTful express Auth Template API",
   "license": "MIT",
   "author": "JavedanCode",
   "type": "module",
