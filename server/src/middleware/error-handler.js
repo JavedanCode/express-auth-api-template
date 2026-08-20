@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import { Prisma } from '../../generated/prisma/client.ts';
 
 import { AppError } from '../errors/AppError.js';
 
@@ -15,6 +16,40 @@ export function errorHandler(error, req, res, _next) {
         })),
       },
     });
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2002') {
+      const target = error.meta?.target;
+
+      if (Array.isArray(target) && target.includes('email')) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'EMAIL_ALREADY_EXISTS',
+            message: 'Email is already registered.',
+          },
+        });
+      }
+
+      if (Array.isArray(target) && target.includes('username')) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: 'USERNAME_ALREADY_EXISTS',
+            message: 'Username is already taken.',
+          },
+        });
+      }
+
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'UNIQUE_CONSTRAINT_VIOLATION',
+          message: 'A resource with the provided value already exists.',
+        },
+      });
+    }
   }
 
   if (error instanceof AppError) {
