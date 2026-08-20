@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 import { prisma } from '../db/prisma.js';
 import { generateAccessToken } from './token.service.js';
 
@@ -7,9 +5,7 @@ import { AppError } from '../errors/AppError.js';
 
 import { createSession } from './session.service.js';
 
-export async function verifyPassword(password, passwordHash) {
-  return bcrypt.compare(password, passwordHash);
-}
+import { hashPassword } from './password.service.js';
 
 export async function createAuthentication({ userId, userAgent, ipAddress }) {
   const { session, refreshToken } = await createSession({
@@ -48,7 +44,7 @@ export async function registerUser({ username, email, password }) {
     throw new AppError('Username is already taken.', 409, 'USERNAME_ALREADY_EXISTS');
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
+  const passwordHash = await hashPassword(password);
 
   return prisma.user.create({
     data: {
