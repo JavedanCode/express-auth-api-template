@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
 
+// Generate a cryptographically random value used to bind the OAuth callback
+// to the browser session that initiated the authentication flow.
 export function generateOAuthState() {
   return crypto.randomBytes(32).toString('hex');
 }
@@ -16,5 +18,7 @@ export function verifyOAuthState(expectedState, receivedState) {
     return false;
   }
 
+  // Compare the values in constant time to avoid leaking information through
+  // timing differences during state validation.
   return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
 }

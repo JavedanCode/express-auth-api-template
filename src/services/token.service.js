@@ -8,10 +8,14 @@ import { durationToMilliseconds } from '../utils/duration.js';
 
 import { AppError } from '../errors/AppError.js';
 
+// Keep token verification behind one helper so access and refresh tokens share
+// the same validation behavior and never expose JWT-library errors to clients.
 function verifyToken(token, secret, expectedType) {
   try {
     const payload = jwt.verify(token, secret);
 
+    // A valid signature is not enough; the token must also be intended for the
+    // authentication flow that is consuming it.
     if (payload.type !== expectedType) {
       throw new AppError('Authentication required.', 401, 'AUTHENTICATION_REQUIRED');
     }
@@ -26,6 +30,8 @@ function verifyToken(token, secret, expectedType) {
   }
 }
 
+// Refresh tokens carry the session ID so the session service can validate,
+// rotate, and revoke the corresponding server-side session.
 export function generateAccessToken(userId) {
   return jwt.sign(
     {
@@ -62,6 +68,8 @@ export function verifyRefreshToken(token) {
   return verifyToken(token, env.JWT_REFRESH_SECRET, 'refresh');
 }
 
+// Tokens are hashed before persistence so database access does not expose
+// usable authentication credentials.
 export function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }

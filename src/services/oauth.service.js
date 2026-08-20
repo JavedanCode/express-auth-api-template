@@ -73,12 +73,16 @@ export async function findOrCreateOAuthUser({
     providerAccountId,
   });
 
+  // If this provider account is already linked, return the existing application
+  // user instead of creating another account.
   if (existingAccount) {
     return existingAccount.user;
   }
 
   const existingUser = await findUserByEmail(email);
 
+  // Do not automatically link OAuth credentials to an existing account based
+  // only on a matching email address; account linking must be an explicit action.
   if (existingUser) {
     throw new AppError(
       'An account with this email already exists. Please log in using your existing account and link your OAuth provider from your account settings.',
@@ -87,11 +91,15 @@ export async function findOrCreateOAuthUser({
     );
   }
 
+  // OAuth providers do not guarantee a username that satisfies the application's
+  // username rules, so generate a valid unique username from the user's email.
   const username = await generateUniqueUsername({
     email,
     provider,
   });
 
+  // Create the user and provider account atomically so an OAuth account can never
+  // be persisted without its corresponding application user.
   return prisma.$transaction(async (tx) => {
     const user = await tx.user.create({
       data: {

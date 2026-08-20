@@ -15,10 +15,14 @@ import { hashPassword } from './password.service.js';
 export async function requestPasswordReset(email) {
   const user = await findUserByEmail(email);
 
+  // Return silently when the email is not registered so password-reset requests
+  // cannot be used to enumerate accounts.
   if (!user) {
     return;
   }
 
+  // Suppress repeated reset requests according to the token service's cooldown
+  // policy without exposing whether the request was allowed.
   const canRequest = await canRequestPasswordReset(user.id);
 
   if (!canRequest) {
@@ -47,7 +51,11 @@ export async function resetPassword({ token, newPassword }) {
 
   const passwordChangedAt = new Date();
 
+  // Consume the reset token, update the password, and revoke existing sessions
+  // atomically so the account cannot end up in a partially updated state.
   await prisma.$transaction(async (tx) => {
+    // Re-check that the token has not already been consumed inside the transaction
+    // to prevent concurrent requests from successfully reusing the same token.
     const consumedToken = await tx.verificationToken.updateMany({
       where: {
         id: verificationToken.id,

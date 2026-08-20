@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../errors/AppError.js';
 
+// Token lifetimes and resend cooldowns are kept here so all verification
+// flows use consistent security policies.
 const EMAIL_VERIFICATION_EXPIRATION_MINUTES = 15;
 const EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = 60;
 const PASSWORD_RESET_EXPIRATION_MINUTES = 15;
@@ -13,10 +15,14 @@ function getExpiration(minutes) {
   return new Date(Date.now() + minutes * 60 * 1000);
 }
 
+// Generate a cryptographically secure six-digit code rather than using
+// Math.random(), which is not suitable for authentication secrets.
 function generateVerificationCode() {
   return crypto.randomInt(100000, 1000000).toString();
 }
 
+// Store only a hash of the verification code so the usable code is never
+// persisted in the database.
 function hashVerificationCode(code) {
   return crypto.createHash('sha256').update(code).digest('hex');
 }
@@ -25,6 +31,8 @@ function generateSecureToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+// Hash password-reset and email-change tokens before persistence so database
+// access does not expose usable authentication credentials.
 function hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
@@ -35,6 +43,8 @@ export async function createEmailVerificationToken(userId) {
 
   const expiresAt = getExpiration(EMAIL_VERIFICATION_EXPIRATION_MINUTES);
 
+  // Invalidate any previous unused verification code so only the latest
+  // verification attempt remains valid.
   await prisma.verificationToken.deleteMany({
     where: {
       userId,
@@ -73,6 +83,8 @@ export async function verifyEmailVerificationToken(userId, code) {
 
   const verifiedAt = new Date();
 
+  // Mark the token as used and verify the account together so the two state
+  // changes cannot succeed independently.
   await prisma.$transaction([
     prisma.verificationToken.update({
       where: {
@@ -96,6 +108,8 @@ export async function verifyEmailVerificationToken(userId, code) {
   return true;
 }
 
+// Prevent repeated verification emails from being generated within the
+// configured cooldown window.
 export async function canRequestEmailVerification(userId) {
   const recentToken = await prisma.verificationToken.findFirst({
     where: {
@@ -139,6 +153,8 @@ export async function createPasswordResetToken(userId) {
   return token;
 }
 
+// Validate the token without consuming it. The password-reset service consumes
+// the token atomically with the password change.
 export async function consumePasswordResetToken(token) {
   const tokenHash = hashToken(token);
 
@@ -161,6 +177,8 @@ export async function consumePasswordResetToken(token) {
   return verificationToken;
 }
 
+// Prevent repeated password-reset emails from being generated within the
+// configured cooldown window.
 export async function canRequestPasswordReset(userId) {
   const recentToken = await prisma.verificationToken.findFirst({
     where: {
@@ -205,6 +223,8 @@ export async function createEmailChangeToken(userId, targetEmail) {
   return token;
 }
 
+// Validate the token without consuming it. The email-change service performs
+// the final state change and token consumption together.
 export async function consumeEmailChangeToken(token) {
   const tokenHash = hashToken(token);
 
@@ -223,6 +243,8 @@ export async function consumeEmailChangeToken(token) {
   return verificationToken;
 }
 
+// Prevent repeated email-change requests from being generated within the
+// configured cooldown window.
 export async function canRequestEmailChange(userId) {
   const recentToken = await prisma.verificationToken.findFirst({
     where: {
