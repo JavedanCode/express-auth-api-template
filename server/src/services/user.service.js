@@ -1,8 +1,6 @@
-import bcrypt from 'bcryptjs';
-
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../errors/AppError.js';
-import { verifyPassword } from './password.service.js';
+import { verifyPassword, hashPassword } from './password.service.js';
 import { revokeAllUserSessions } from './session.service.js';
 
 export async function findUserByEmail(email) {
@@ -38,7 +36,7 @@ export async function changeUserPassword({ userId, currentPassword, newPassword 
     throw new AppError('Current password is incorrect.', 401, 'INVALID_CURRENT_PASSWORD');
   }
 
-  const samePassword = await bcrypt.compare(newPassword, user.passwordHash);
+  const samePassword = await verifyPassword(newPassword, user.passwordHash);
 
   if (samePassword) {
     throw new AppError(
@@ -48,7 +46,7 @@ export async function changeUserPassword({ userId, currentPassword, newPassword 
     );
   }
 
-  const passwordHash = await bcrypt.hash(newPassword, 12);
+  const passwordHash = await hashPassword(newPassword);
 
   const updatedUser = await prisma.user.update({
     where: {
