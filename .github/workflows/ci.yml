@@ -28,9 +28,18 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    env:
+      env:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/express_auth_api_test
+      CLIENT_URL: http://localhost:5173
+      JWT_ACCESS_SECRET: ci-test-access-secret-123456789012345678901234
+      JWT_REFRESH_SECRET: ci-test-refresh-secret-123456789012345678901234
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      RESEND_API_KEY: re_test_placeholder
+      EMAIL_FROM: test@example.com
+      PASSWORD_RESET_URL: http://localhost:5173/reset-password
+      EMAIL_CHANGE_URL: http://localhost:5173/change-email
 
     steps:
       - name: Checkout repository
