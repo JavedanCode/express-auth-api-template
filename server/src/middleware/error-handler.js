@@ -50,6 +50,26 @@ export function errorHandler(error, req, res, _next) {
         },
       });
     }
+
+    if (error.code === 'P2025') {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'RESOURCE_NOT_FOUND',
+          message: 'The requested resource was not found.',
+        },
+      });
+    }
+
+    if (error.code === 'P2003') {
+      return res.status(409).json({
+        success: false,
+        error: {
+          code: 'RESOURCE_CONFLICT',
+          message: 'The operation conflicts with an existing resource.',
+        },
+      });
+    }
   }
 
   if (error instanceof AppError) {
