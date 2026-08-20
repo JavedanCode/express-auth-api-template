@@ -1,5 +1,3 @@
-import bcrypt from 'bcryptjs';
-
 import { prisma } from '../db/prisma.js';
 import { findUserByEmail } from './user.service.js';
 import {
@@ -11,6 +9,8 @@ import { sendEmail } from './email.service.js';
 import { buildPasswordResetEmail } from '../emails/password-reset.js';
 import { env } from '../config/env.js';
 import { AppError } from '../errors/AppError.js';
+
+import { hashPassword } from './password.service.js';
 
 export async function requestPasswordReset(email) {
   const user = await findUserByEmail(email);
@@ -43,7 +43,7 @@ export async function requestPasswordReset(email) {
 export async function resetPassword({ token, newPassword }) {
   const verificationToken = await consumePasswordResetToken(token);
 
-  const passwordHash = await bcrypt.hash(newPassword, 12);
+  const passwordHash = await hashPassword(newPassword);
 
   const passwordChangedAt = new Date();
 
