@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../errors/AppError.js';
-import { verifyPassword } from './auth.service.js';
+import { verifyPassword } from './password.service.js';
 import { revokeAllUserSessions } from './session.service.js';
 
 export async function findUserByEmail(email) {
