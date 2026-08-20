@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { AuthProvider } from '../../generated/prisma/enums.js';
-import { processGoogleProfile } from '../../src/strategies/oauth-profile.js';
+import { processGoogleProfile } from '../../src/strategies/google-profile.js';
 
 describe('Google OAuth profile processing', () => {
   it('creates a user from a verified Google profile', async () => {
@@ -59,7 +59,7 @@ describe('Google OAuth profile processing', () => {
         findOrCreateOAuthUser,
         provider: AuthProvider.GOOGLE,
       }),
-    ).rejects.toThrow('Google account does not provide a verified email address.');
+    ).rejects.toThrow('A verified email address is required to use Google login.');
 
     expect(findOrCreateOAuthUser).not.toHaveBeenCalled();
   });
@@ -84,7 +84,7 @@ describe('Google OAuth profile processing', () => {
         findOrCreateOAuthUser,
         provider: AuthProvider.GOOGLE,
       }),
-    ).rejects.toThrow('Google account does not provide a verified email address.');
+    ).rejects.toThrow('A verified email address is required to use Google login.');
 
     expect(findOrCreateOAuthUser).not.toHaveBeenCalled();
   });

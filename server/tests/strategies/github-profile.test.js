@@ -139,7 +139,7 @@ describe('processGitHubProfile', () => {
         findOrCreateOAuthUser,
         provider: 'GITHUB',
       }),
-    ).rejects.toThrow('GitHub account does not provide an email address.');
+    ).rejects.toThrow('A GitHub account with an email address is required.');
 
     expect(findOrCreateOAuthUser).not.toHaveBeenCalled();
   });
