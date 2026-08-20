@@ -5,6 +5,8 @@ const units = {
   d: 24 * 60 * 60 * 1000,
 };
 
+// Convert a compact duration string (for example, "15m" or "7d")
+// into milliseconds for use with JWT and cookie expiration settings.
 export function durationToMilliseconds(value) {
   const match = /^(\d+)([smhd])$/.exec(value);
 
