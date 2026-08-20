@@ -1,4 +1,4 @@
-import { findUserById } from './auth.service.js';
+import { findUserById } from './user.service.js';
 import {
   canRequestEmailChange,
   createEmailChangeToken,
