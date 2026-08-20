@@ -13,10 +13,17 @@ import userRouter from './routes/user.routes.js';
 
 import { errorHandler } from './middleware/error-handler.js';
 
+import { env } from './config/env.js';
+
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 app.use(compression());
 app.use(morgan('dev'));
 
