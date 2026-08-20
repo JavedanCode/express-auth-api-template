@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { passwordSchema } from './common.schema';
+
 export const updateProfileSchema = z
   .object({
     displayName: z
