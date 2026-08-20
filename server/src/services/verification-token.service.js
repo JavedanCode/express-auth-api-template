@@ -1,13 +1,17 @@
 import crypto from 'node:crypto';
-
 import { prisma } from '../db/prisma.js';
 import { AppError } from '../errors/AppError.js';
 
 const EMAIL_VERIFICATION_EXPIRATION_MINUTES = 15;
+const EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = 60;
 const PASSWORD_RESET_EXPIRATION_MINUTES = 15;
 const PASSWORD_RESET_COOLDOWN_SECONDS = 60;
 const EMAIL_CHANGE_EXPIRATION_MINUTES = 15;
 const EMAIL_CHANGE_COOLDOWN_SECONDS = 60;
+
+function getExpiration(minutes) {
+  return new Date(Date.now() + minutes * 60 * 1000);
+}
 
 function generateVerificationCode() {
   return crypto.randomInt(100000, 1000000).toString();
@@ -29,7 +33,7 @@ export async function createEmailVerificationToken(userId) {
   const code = generateVerificationCode();
   const tokenHash = hashVerificationCode(code);
 
-  const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_EXPIRATION_MINUTES * 60 * 1000);
+  const expiresAt = getExpiration(EMAIL_VERIFICATION_EXPIRATION_MINUTES);
 
   await prisma.verificationToken.deleteMany({
     where: {
@@ -92,8 +96,6 @@ export async function verifyEmailVerificationToken(userId, code) {
   return true;
 }
 
-const EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS = 60;
-
 export async function canRequestEmailVerification(userId) {
   const recentToken = await prisma.verificationToken.findFirst({
     where: {
@@ -115,7 +117,7 @@ export async function createPasswordResetToken(userId) {
   const token = generateSecureToken();
   const tokenHash = hashToken(token);
 
-  const expiresAt = new Date(Date.now() + PASSWORD_RESET_EXPIRATION_MINUTES * 60 * 1000);
+  const expiresAt = getExpiration(PASSWORD_RESET_EXPIRATION_MINUTES);
 
   await prisma.verificationToken.deleteMany({
     where: {
@@ -180,7 +182,7 @@ export async function createEmailChangeToken(userId, targetEmail) {
   const token = generateSecureToken();
   const tokenHash = hashToken(token);
 
-  const expiresAt = new Date(Date.now() + EMAIL_CHANGE_EXPIRATION_MINUTES * 60 * 1000);
+  const expiresAt = getExpiration(EMAIL_CHANGE_EXPIRATION_MINUTES);
 
   await prisma.verificationToken.deleteMany({
     where: {
