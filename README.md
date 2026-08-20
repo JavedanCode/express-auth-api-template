@@ -12,54 +12,54 @@ The template is intentionally modular: authentication, sessions, OAuth, validati
 
 ### Authentication
 
-* Local email/password authentication
-* Google OAuth 2.0
-* GitHub OAuth
-* JWT access tokens
-* JWT refresh tokens
-* HTTP-only authentication cookies
-* Refresh-token rotation
-* Server-side session tracking
-* Session revocation
-* Authentication middleware
-* Secure logout
-* Password changes
-* Password reset flow
-* Email verification
-* Email address change verification
-* Account deletion
+- Local email/password authentication
+- Google OAuth 2.0
+- GitHub OAuth
+- JWT access tokens
+- JWT refresh tokens
+- HTTP-only authentication cookies
+- Refresh-token rotation
+- Server-side session tracking
+- Session revocation
+- Authentication middleware
+- Secure logout
+- Password changes
+- Password reset flow
+- Email verification
+- Email address change verification
+- Account deletion
 
 ### Security
 
-* Password hashing with `bcryptjs`
-* Separate access-token and refresh-token secrets
-* Refresh-token hashes stored in the database instead of raw tokens
-* Refresh-token rotation and reuse detection
-* Session revocation after password changes and password resets
-* Cryptographically secure verification codes and tokens
-* OAuth state validation using `crypto.timingSafeEqual`
-* Rate limiting on authentication-sensitive endpoints
-* Zod request validation
-* Helmet security headers
-* Credentialed CORS restricted to the configured frontend origin
-* Centralized error handling
-* Prisma database constraints as the final protection against race conditions
-* Generic authentication errors that avoid unnecessarily exposing account information
-* Secure cookie configuration for production environments
+- Password hashing with `bcryptjs`
+- Separate access-token and refresh-token secrets
+- Refresh-token hashes stored in the database instead of raw tokens
+- Refresh-token rotation and reuse detection
+- Session revocation after password changes and password resets
+- Cryptographically secure verification codes and tokens
+- OAuth state validation using `crypto.timingSafeEqual`
+- Rate limiting on authentication-sensitive endpoints
+- Zod request validation
+- Helmet security headers
+- Credentialed CORS restricted to the configured frontend origin
+- Centralized error handling
+- Prisma database constraints as the final protection against race conditions
+- Generic authentication errors that avoid unnecessarily exposing account information
+- Secure cookie configuration for production environments
 
 ### Developer Experience
 
-* ES modules
-* Prisma ORM
-* PostgreSQL
-* Vitest
-* Supertest
-* ESLint
-* Prettier
-* Environment validation with Zod
-* Modular service/controller architecture
-* Reusable authentication foundation
-* Comprehensive automated test suite
+- ES modules
+- Prisma ORM
+- PostgreSQL
+- Vitest
+- Supertest
+- ESLint
+- Prettier
+- Environment validation with Zod
+- Modular service/controller architecture
+- Reusable authentication foundation
+- Comprehensive automated test suite
 
 ---
 
@@ -387,17 +387,17 @@ server/
 
 Before starting, make sure you have:
 
-* Node.js
-* npm
-* PostgreSQL
-* A PostgreSQL database for the application
-* A PostgreSQL database for tests
+- Node.js
+- npm
+- PostgreSQL
+- A PostgreSQL database for the application
+- A PostgreSQL database for tests
 
 Optional:
 
-* Google OAuth credentials
-* GitHub OAuth credentials
-* Resend account/API key
+- Google OAuth credentials
+- GitHub OAuth credentials
+- Resend account/API key
 
 ---
 
@@ -671,8 +671,8 @@ Authenticates a verified local user.
 
 Successful authentication sets:
 
-* `accessToken`
-* `refreshToken`
+- `accessToken`
+- `refreshToken`
 
 as HTTP-only cookies.
 
@@ -719,11 +719,11 @@ Verifies a user's email address.
 
 Verification codes are:
 
-* Cryptographically generated
-* Hashed before database storage
-* Short-lived
-* Single-use
-* Protected by resend cooldowns
+- Cryptographically generated
+- Hashed before database storage
+- Short-lived
+- Single-use
+- Protected by resend cooldowns
 
 ---
 
@@ -1073,9 +1073,9 @@ Sessions can be revoked individually or for an entire user.
 
 All active sessions are revoked when:
 
-* A user changes their password
-* A user resets their password
-* A refresh-token reuse attempt is detected
+- A user changes their password
+- A user resets their password
+- A refresh-token reuse attempt is detected
 
 This provides server-side invalidation even though authentication uses JWTs.
 
@@ -1085,11 +1085,11 @@ This provides server-side invalidation even though authentication uses JWTs.
 
 Authentication cookies are configured with:
 
-* `httpOnly`
-* `sameSite`
-* `secure` in production
-* Restricted paths
-* Explicit expiration
+- `httpOnly`
+- `sameSite`
+- `secure` in production
+- Restricted paths
+- Explicit expiration
 
 The access token and refresh token use separate cookie configurations.
 
@@ -1111,11 +1111,11 @@ Verification and reset credentials are not stored in plaintext.
 
 The system uses:
 
-* Cryptographically secure random values
-* SHA-256 hashes
-* Expiration times
-* Single-use tokens
-* Request cooldowns
+- Cryptographically secure random values
+- SHA-256 hashes
+- Expiration times
+- Single-use tokens
+- Request cooldowns
 
 Password-reset and email-change flows also invalidate previously active tokens where appropriate.
 
@@ -1195,7 +1195,7 @@ The authentication system should not need to know what the application does with
 Instead, application-specific routes can simply use:
 
 ```js
-authenticate
+authenticate;
 ```
 
 to establish the authenticated user context.
@@ -1256,20 +1256,20 @@ This template provides the application-level foundation for production-oriented 
 
 Before deploying:
 
-* Use HTTPS/TLS
-* Set `NODE_ENV=production`
-* Use strong, unique JWT secrets
-* Never commit `.env`
-* Use production PostgreSQL credentials
-* Configure the correct frontend origin
-* Configure OAuth callback URLs for the production domain
-* Configure a production email sender
-* Review rate limits for the application's traffic and threat model
-* Keep Node.js and dependencies up to date
-* Run database migrations as part of the deployment process
-* Use appropriate process management and infrastructure for the hosting environment
-* Monitor application errors and authentication activity
-* Review the application's CORS, cookie, and proxy configuration
+- Use HTTPS/TLS
+- Set `NODE_ENV=production`
+- Use strong, unique JWT secrets
+- Never commit `.env`
+- Use production PostgreSQL credentials
+- Configure the correct frontend origin
+- Configure OAuth callback URLs for the production domain
+- Configure a production email sender
+- Review rate limits for the application's traffic and threat model
+- Keep Node.js and dependencies up to date
+- Run database migrations as part of the deployment process
+- Use appropriate process management and infrastructure for the hosting environment
+- Monitor application errors and authentication activity
+- Review the application's CORS, cookie, and proxy configuration
 
 The template is deliberately not tied to a specific hosting provider.
 
@@ -1346,11 +1346,11 @@ This project is licensed under the **MIT License**.
 
 You are free to:
 
-* Use the template in personal projects
-* Use the template in commercial projects
-* Modify the source code
-* Distribute modified versions
-* Build proprietary applications using the template
+- Use the template in personal projects
+- Use the template in commercial projects
+- Modify the source code
+- Distribute modified versions
+- Build proprietary applications using the template
 
 See the `LICENSE` file for the complete license text.
 
@@ -1360,18 +1360,18 @@ See the `LICENSE` file for the complete license text.
 
 This project is built on the following open-source technologies:
 
-* Express
-* Prisma
-* PostgreSQL
-* Passport
-* JSON Web Tokens
-* Zod
-* bcryptjs
-* Helmet
-* express-rate-limit
-* Resend
-* Vitest
-* Supertest
+- Express
+- Prisma
+- PostgreSQL
+- Passport
+- JSON Web Tokens
+- Zod
+- bcryptjs
+- Helmet
+- express-rate-limit
+- Resend
+- Vitest
+- Supertest
 
 ---
 
