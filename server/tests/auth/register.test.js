@@ -4,6 +4,8 @@ import { beforeEach, vi } from 'vitest';
 
 import app from '../../src/app.js';
 import { prisma } from '../../src/db/prisma.js';
+import { Prisma } from '../../generated/prisma/client.ts';
+import { resetRateLimiters } from '../../src/middleware/rate-limit.middleware.js';
 
 vi.mock('../../src/services/email.service.js', () => ({
   sendEmail: vi.fn().mockResolvedValue({
@@ -13,6 +15,8 @@ vi.mock('../../src/services/email.service.js', () => ({
 
 describe('POST /auth/register', () => {
   beforeEach(async () => {
+    await resetRateLimiters();
+
     await prisma.verificationToken.deleteMany();
     await prisma.user.deleteMany();
   });
@@ -144,5 +148,38 @@ describe('POST /auth/register', () => {
         message: 'Email is already registered.',
       },
     });
+  });
+
+  it('handles a database unique constraint violation for username creation', async () => {
+    const prismaCreateSpy = vi.spyOn(prisma.user, 'create').mockRejectedValueOnce(
+      new Prisma.PrismaClientKnownRequestError(
+        'Unique constraint failed on the fields: (`username`)',
+        {
+          code: 'P2002',
+          clientVersion: 'test',
+          meta: {
+            target: ['username'],
+          },
+        },
+      ),
+    );
+
+    const response = await request(app).post('/auth/register').send({
+      username: 'concurrentuser',
+      email: 'concurrent@example.com',
+      password: 'StrongPassword123!',
+    });
+
+    expect(response.status).toBe(409);
+
+    expect(response.body).toMatchObject({
+      success: false,
+      error: {
+        code: 'USERNAME_ALREADY_EXISTS',
+        message: 'Username is already taken.',
+      },
+    });
+
+    prismaCreateSpy.mockRestore();
   });
 });
