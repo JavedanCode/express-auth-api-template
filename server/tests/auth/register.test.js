@@ -112,4 +112,37 @@ describe('POST /auth/register', () => {
 
     expect(response.status).toBe(409);
   });
+
+  it('handles a database unique constraint violation during concurrent registration', async () => {
+    const requests = [
+      request(app).post('/auth/register').send({
+        username: 'concurrentuser1',
+        email: 'concurrent@example.com',
+        password: 'StrongPassword123!',
+      }),
+
+      request(app).post('/auth/register').send({
+        username: 'concurrentuser2',
+        email: 'concurrent@example.com',
+        password: 'StrongPassword123!',
+      }),
+    ];
+
+    const responses = await Promise.all(requests);
+
+    const statuses = responses.map((response) => response.status);
+
+    expect(statuses).toContain(201);
+    expect(statuses).toContain(409);
+
+    const conflictResponse = responses.find((response) => response.status === 409);
+
+    expect(conflictResponse.body).toMatchObject({
+      success: false,
+      error: {
+        code: 'EMAIL_ALREADY_EXISTS',
+        message: 'Email is already registered.',
+      },
+    });
+  });
 });
