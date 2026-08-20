@@ -1,11 +1,10 @@
-import { prisma } from '../db/prisma.js';
 import { generateAccessToken } from './token.service.js';
-
-import { AppError } from '../errors/AppError.js';
 
 import { createSession } from './session.service.js';
 
 import { hashPassword } from './password.service.js';
+
+import { createUser } from './user.service.js';
 
 export async function createAuthentication({ userId, userAgent, ipAddress }) {
   const { session, refreshToken } = await createSession({
@@ -24,33 +23,11 @@ export async function createAuthentication({ userId, userAgent, ipAddress }) {
 }
 
 export async function registerUser({ username, email, password }) {
-  const existingEmail = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (existingEmail) {
-    throw new AppError('Email is already registered.', 409, 'EMAIL_ALREADY_EXISTS');
-  }
-
-  const existingUsername = await prisma.user.findUnique({
-    where: {
-      username,
-    },
-  });
-
-  if (existingUsername) {
-    throw new AppError('Username is already taken.', 409, 'USERNAME_ALREADY_EXISTS');
-  }
-
   const passwordHash = await hashPassword(password);
 
-  return prisma.user.create({
-    data: {
-      username,
-      email,
-      passwordHash,
-    },
+  return createUser({
+    username,
+    email,
+    passwordHash,
   });
 }

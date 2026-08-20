@@ -19,6 +19,36 @@ export async function findUserById(userId) {
   });
 }
 
+export async function createUser({ username, email, passwordHash }) {
+  const existingEmail = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  if (existingEmail) {
+    throw new AppError('Email is already registered.', 409, 'EMAIL_ALREADY_EXISTS');
+  }
+
+  const existingUsername = await prisma.user.findUnique({
+    where: {
+      username,
+    },
+  });
+
+  if (existingUsername) {
+    throw new AppError('Username is already taken.', 409, 'USERNAME_ALREADY_EXISTS');
+  }
+
+  return prisma.user.create({
+    data: {
+      username,
+      email,
+      passwordHash,
+    },
+  });
+}
+
 export async function changeUserPassword({ userId, currentPassword, newPassword }) {
   const user = await prisma.user.findUnique({
     where: {
