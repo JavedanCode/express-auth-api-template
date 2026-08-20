@@ -1,7 +1,11 @@
 import rateLimit from 'express-rate-limit';
 
+// Keep references to the limiters so tests can reset their in-memory state
+// between requests without restarting the application.
 const limiters = [];
 
+// Apply the same response-header configuration to every limiter while
+// allowing each endpoint to define its own window and request limit.
 function createRateLimiter(options) {
   const limiter = rateLimit({
     standardHeaders: 'draft-8',
@@ -14,6 +18,8 @@ function createRateLimiter(options) {
   return limiter;
 }
 
+// This helper is intended for test isolation and should not be used by
+// application request handlers.
 export async function resetRateLimiters() {
   for (const limiter of limiters) {
     await limiter.resetKey('127.0.0.1');

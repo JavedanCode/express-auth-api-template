@@ -12,6 +12,8 @@ export async function authenticate(req, res, next) {
 
     const payload = verifyAccessToken(token);
 
+    // Token validity alone is not sufficient; the user must still exist in the
+    // database so deleted accounts cannot continue using previously issued tokens.
     const user = await findUserById(payload.sub);
 
     if (!user) {

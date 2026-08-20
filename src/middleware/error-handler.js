@@ -4,6 +4,8 @@ import { Prisma } from '../../generated/prisma/client.ts';
 import { AppError } from '../errors/AppError.js';
 
 export function errorHandler(error, req, res, _next) {
+  // Validation errors are expected client errors and are returned with the
+  // individual fields that failed validation.
   if (error instanceof ZodError) {
     return res.status(400).json({
       success: false,
@@ -18,6 +20,8 @@ export function errorHandler(error, req, res, _next) {
     });
   }
 
+  // Translate known database constraint errors into stable API errors so
+  // database-specific error details are not exposed to clients.
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2002') {
       const target = error.meta?.target;
@@ -72,6 +76,8 @@ export function errorHandler(error, req, res, _next) {
     }
   }
 
+  // AppError represents expected application-level failures with an
+  // intentional HTTP status and public error code.
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({
       success: false,
@@ -82,6 +88,8 @@ export function errorHandler(error, req, res, _next) {
     });
   }
 
+  // Anything that reaches this point is unexpected and should be logged
+  // server-side while exposing only a generic response to the client.
   console.error(error);
 
   return res.status(500).json({
