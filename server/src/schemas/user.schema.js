@@ -38,6 +38,11 @@ export const confirmEmailChangeSchema = z.object({
   token: z.string().min(1, 'Email change token is required.'),
 });
 
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required.'),
+  newPassword: passwordSchema,
+});
+
 export const deleteAccountSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required.').optional(),
 });
