@@ -59,6 +59,8 @@ export async function rotateSession({ sessionId, refreshToken }) {
 
   const newRefreshTokenHash = hashToken(newRefreshToken);
 
+  const now = new Date();
+
   const result = await prisma.session.updateMany({
     where: {
       id: session.id,
@@ -67,7 +69,7 @@ export async function rotateSession({ sessionId, refreshToken }) {
     },
     data: {
       refreshTokenHash: newRefreshTokenHash,
-      lastUsedAt: new Date(),
+      lastUsedAt: now,
       expiresAt: getRefreshTokenExpiration(),
     },
   });
@@ -89,7 +91,7 @@ export async function rotateSession({ sessionId, refreshToken }) {
     session: {
       ...session,
       refreshTokenHash: newRefreshTokenHash,
-      lastUsedAt: new Date(),
+      lastUsedAt: now,
     },
     refreshToken: newRefreshToken,
   };
