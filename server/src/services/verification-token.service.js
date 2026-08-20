@@ -17,6 +17,14 @@ function hashVerificationCode(code) {
   return crypto.createHash('sha256').update(code).digest('hex');
 }
 
+function generateSecureToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+function hashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
 export async function createEmailVerificationToken(userId) {
   const code = generateVerificationCode();
   const tokenHash = hashVerificationCode(code);
@@ -103,17 +111,9 @@ export async function canRequestEmailVerification(userId) {
   return !recentToken;
 }
 
-function generatePasswordResetToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-function hashPasswordResetToken(token) {
-  return crypto.createHash('sha256').update(token).digest('hex');
-}
-
 export async function createPasswordResetToken(userId) {
-  const token = generatePasswordResetToken();
-  const tokenHash = hashPasswordResetToken(token);
+  const token = generateSecureToken();
+  const tokenHash = hashToken(token);
 
   const expiresAt = new Date(Date.now() + PASSWORD_RESET_EXPIRATION_MINUTES * 60 * 1000);
 
@@ -138,7 +138,7 @@ export async function createPasswordResetToken(userId) {
 }
 
 export async function consumePasswordResetToken(token) {
-  const tokenHash = hashPasswordResetToken(token);
+  const tokenHash = hashToken(token);
 
   const verificationToken = await prisma.verificationToken.findFirst({
     where: {
@@ -176,17 +176,9 @@ export async function canRequestPasswordReset(userId) {
   return !recentToken;
 }
 
-function generateEmailChangeToken() {
-  return crypto.randomBytes(32).toString('hex');
-}
-
-function hashEmailChangeToken(token) {
-  return crypto.createHash('sha256').update(token).digest('hex');
-}
-
 export async function createEmailChangeToken(userId, targetEmail) {
-  const token = generateEmailChangeToken();
-  const tokenHash = hashEmailChangeToken(token);
+  const token = generateSecureToken();
+  const tokenHash = hashToken(token);
 
   const expiresAt = new Date(Date.now() + EMAIL_CHANGE_EXPIRATION_MINUTES * 60 * 1000);
 
@@ -212,7 +204,7 @@ export async function createEmailChangeToken(userId, targetEmail) {
 }
 
 export async function consumeEmailChangeToken(token) {
-  const tokenHash = hashEmailChangeToken(token);
+  const tokenHash = hashToken(token);
 
   const verificationToken = await prisma.verificationToken.findFirst({
     where: {
