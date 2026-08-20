@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '../../src/app.js';
 import { prisma } from '../../src/db/prisma.js';
 import { sendEmail } from '../../src/services/email.service.js';
-import { resetRateLimiters } from '../../src/middleware/rate-limit.middleware.js';
+import { resetRateLimiters } from '../../src/middleware/rate-limit.js';
 
 vi.mock('../../src/services/email.service.js', () => ({
   sendEmail: vi.fn().mockResolvedValue({

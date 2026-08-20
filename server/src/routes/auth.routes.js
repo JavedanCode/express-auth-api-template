@@ -30,7 +30,7 @@ import {
   resendEmailVerificationRateLimiter,
   forgotPasswordRateLimiter,
   resetPasswordRateLimiter,
-} from '../middleware/rate-limit.middleware.js';
+} from '../middleware/rate-limit.js';
 
 import {
   loginSchema,

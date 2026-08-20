@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import app from '../../src/app.js';
 import { prisma } from '../../src/db/prisma.js';
-import { resetRateLimiters } from '../../src/middleware/rate-limit.middleware.js';
+import { resetRateLimiters } from '../../src/middleware/rate-limit.js';
 
 describe('PATCH /users/me/username', () => {
   let user;
