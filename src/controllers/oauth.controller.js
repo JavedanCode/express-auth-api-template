@@ -13,6 +13,8 @@ import { createAuthentication } from '../services/auth.service.js';
 import { generateOAuthState, verifyOAuthState } from '../services/oauth.state.service.js';
 
 export function startGoogleOAuth(req, res) {
+  // Generate a short-lived state value to bind the OAuth callback to the
+  // authentication flow initiated by this browser.
   const state = generateOAuthState();
 
   res.cookie('oauthState', state, oauthStateCookieOptions);
@@ -25,6 +27,8 @@ export async function googleCallback(req, res, next) {
     const receivedState = req.query.state;
     const expectedState = req.cookies.oauthState;
 
+    // Validate the OAuth state before accepting the provider's identity.
+    // This protects the callback from forged or unsolicited OAuth responses.
     if (!verifyOAuthState(expectedState, receivedState)) {
       throw new AppError('OAuth authentication failed.', 401, 'OAUTH_STATE_INVALID');
     }
@@ -35,6 +39,8 @@ export async function googleCallback(req, res, next) {
       throw new AppError('OAuth authentication failed.', 401, 'OAUTH_AUTHENTICATION_FAILED');
     }
 
+    // Passport has completed the provider authentication and populated req.user.
+    // Create the application's session and issue the same tokens used by local login.
     const { accessToken, refreshToken } = await createAuthentication({
       userId: req.user.id,
       userAgent: req.get('user-agent'),
@@ -51,6 +57,8 @@ export async function googleCallback(req, res, next) {
 }
 
 export function startGitHubOAuth(req, res) {
+  // Generate a short-lived state value to bind the OAuth callback to the
+  // authentication flow initiated by this browser.
   const state = generateOAuthState();
 
   res.cookie('oauthState', state, oauthStateCookieOptions);
@@ -63,6 +71,8 @@ export async function githubCallback(req, res, next) {
     const receivedState = req.query.state;
     const expectedState = req.cookies.oauthState;
 
+    // Validate the OAuth state before accepting the provider's identity.
+    // This protects the callback from forged or unsolicited OAuth responses.
     if (!verifyOAuthState(expectedState, receivedState)) {
       throw new AppError('OAuth authentication failed.', 401, 'OAUTH_STATE_INVALID');
     }
@@ -73,6 +83,8 @@ export async function githubCallback(req, res, next) {
       throw new AppError('OAuth authentication failed.', 401, 'OAUTH_AUTHENTICATION_FAILED');
     }
 
+    // Passport has completed the provider authentication and populated req.user.
+    // Create the application's session and issue the same tokens used by local login.
     const { accessToken, refreshToken } = await createAuthentication({
       userId: req.user.id,
       userAgent: req.get('user-agent'),
