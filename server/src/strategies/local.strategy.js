@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 
-import { verifyPassword } from '../services/auth.service.js';
+import { verifyPassword } from '../services/password.service.js';
 import { findUserByEmail } from '../services/user.service.js';
 
 export function configureLocalStrategy() {
