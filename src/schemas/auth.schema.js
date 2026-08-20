@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { passwordSchema } from './common.schema.js';
 
+// Reuse the shared password rules so registration and password-reset flows
+// enforce the same password requirements.
+// Authentication schemas define the request contracts for the public auth endpoints.
 export const registerSchema = z.object({
   username: z
     .string()

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { passwordSchema } from './common.schema.js';
 
+// Profile updates are partial, but at least one supported field must be provided.
 export const updateProfileSchema = z
   .object({
     displayName: z
@@ -40,6 +41,7 @@ export const confirmEmailChangeSchema = z.object({
   token: z.string().min(1, 'Email change token is required.'),
 });
 
+// The new password uses the same requirements as registration and password reset.
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Current password is required.'),
   newPassword: passwordSchema,
