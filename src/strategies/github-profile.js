@@ -1,8 +1,12 @@
 import { AppError } from '../errors/AppError.js';
 
 export async function processGitHubProfile(profile, { findOrCreateOAuthUser, provider }) {
+  // Prefer GitHub's primary email when available, falling back to the first
+  // available email returned by the provider.
   const emailData = profile.emails?.find((email) => email.primary) ?? profile.emails?.[0];
 
+  // A usable email address is required because it is used to identify and
+  // associate the OAuth account with a local user account.
   if (!emailData?.value) {
     throw new AppError(
       'A GitHub account with an email address is required.',
@@ -11,6 +15,7 @@ export async function processGitHubProfile(profile, { findOrCreateOAuthUser, pro
     );
   }
 
+  // Normalize provider data into the application-specific OAuth user shape.
   return findOrCreateOAuthUser({
     provider,
     providerAccountId: profile.id,

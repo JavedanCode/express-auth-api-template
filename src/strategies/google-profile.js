@@ -1,6 +1,8 @@
 import { AppError } from '../errors/AppError.js';
 
 export async function processGoogleProfile(profile, { findOrCreateOAuthUser, provider }) {
+  // Google must provide a verified email address because the email is used
+  // to identify and associate the OAuth account with a local user account.
   const emailData = profile.emails?.[0];
 
   if (!emailData?.value || !emailData.verified) {
@@ -11,6 +13,7 @@ export async function processGoogleProfile(profile, { findOrCreateOAuthUser, pro
     );
   }
 
+  // Normalize provider data into the application-specific OAuth user shape.
   return findOrCreateOAuthUser({
     provider,
     providerAccountId: profile.id,
