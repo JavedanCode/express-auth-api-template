@@ -56,6 +56,7 @@ export async function changeUserPassword({ userId, currentPassword, newPassword 
     },
     data: {
       passwordHash,
+      passwordChangedAt: new Date(),
     },
   });
 
