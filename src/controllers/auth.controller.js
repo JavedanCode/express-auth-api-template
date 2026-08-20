@@ -19,6 +19,8 @@ export async function register(req, res, next) {
       password,
     });
 
+    // Registration is not complete until the user verifies their email address.
+    // The verification token is created and delivered after the user is persisted.
     await sendEmailVerification(user);
 
     return res.status(201).json({
@@ -40,6 +42,8 @@ export async function register(req, res, next) {
 
 export async function login(req, res, next) {
   try {
+    // Passport has already authenticated the credentials at this point.
+    // Create the application's session and issue both authentication tokens.
     const { accessToken, refreshToken } = await createAuthentication({
       userId: req.user.id,
       userAgent: req.get('user-agent'),
@@ -89,6 +93,8 @@ export async function refresh(req, res, next) {
 
     const payload = verifyRefreshToken(refreshToken);
 
+    // Refresh tokens are rotated on every successful refresh so a previously
+    // used token cannot be reused without triggering session revocation.
     const { session, refreshToken: newRefreshToken } = await rotateSession({
       sessionId: payload.sid,
       refreshToken,
@@ -140,6 +146,8 @@ export async function verifyEmail(req, res, next) {
 
     const user = await findUserByEmail(email);
 
+    // Use the same response for unknown accounts and invalid verification codes
+    // so email verification cannot be used to enumerate registered addresses.
     if (!user) {
       throw new AppError('Invalid or expired verification code.', 400, 'INVALID_VERIFICATION_CODE');
     }
