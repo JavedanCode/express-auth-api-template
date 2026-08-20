@@ -49,6 +49,8 @@ const router = Router();
 
 router.post('/register', registerRateLimiter, validate(registerSchema), register);
 
+// Login requests are validated first, then authenticated by Passport.
+// The controller only creates the application session after authentication succeeds.
 router.post('/login', loginRateLimiter, validate(loginSchema), authenticateLocal, login);
 
 router.get('/me', authenticate, getMe);
@@ -87,6 +89,8 @@ router.post('/logout', logout);
 
 router.get('/google', startGoogleOAuth);
 
+// The authorization endpoint only starts the provider flow after confirming
+// that the browser has an OAuth state value to bind to the callback.
 router.get('/google/authorize', (req, res, next) => {
   const state = req.cookies.oauthState;
 
@@ -101,6 +105,8 @@ router.get('/google/authorize', (req, res, next) => {
   })(req, res, next);
 });
 
+// Passport verifies the provider response and populates req.user before the
+// callback controller creates the application's authentication session.
 router.get(
   '/google/callback',
   passport.authenticate('google', {
@@ -111,6 +117,8 @@ router.get(
 
 router.get('/github', startGitHubOAuth);
 
+// The authorization endpoint only starts the provider flow after confirming
+// that the browser has an OAuth state value to bind to the callback.
 router.get('/github/authorize', (req, res, next) => {
   const state = req.cookies.oauthState;
 
@@ -125,6 +133,8 @@ router.get('/github/authorize', (req, res, next) => {
   })(req, res, next);
 });
 
+// Passport verifies the provider response and populates req.user before the
+// callback controller creates the application's authentication session.
 router.get(
   '/github/callback',
   passport.authenticate('github', {
