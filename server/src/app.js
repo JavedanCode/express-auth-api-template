@@ -33,7 +33,7 @@ app.use('/users', userRouter);
 app.get('/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'Messaging API is running.',
+    message: 'API is running.',
   });
 });
 
